@@ -13,6 +13,7 @@
         android:layout_height="53dp"
         android:layout_marginTop="16dp"
         android:text="ID"
+        android:hint="ID"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -24,6 +25,7 @@
         android:layout_height="53dp"
         android:layout_marginTop="40dp"
         android:text="Longitude"
+        android:hint="Longitude"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -35,6 +37,7 @@
         android:layout_height="53dp"
         android:layout_marginTop="40dp"
         android:text="Latitude"
+        android:hint="Latitude"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -44,14 +47,13 @@
         android:id="@+id/encryptText"
         android:layout_width="120dp"
         android:layout_height="53dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="36dp"
         android:text="Encryption"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:hint="Encryption"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lngText"
-        app:layout_constraintVertical_bias="0.118" />
+        app:layout_constraintTop_toBottomOf="@+id/lngText" />
 
 
     <Button
@@ -96,6 +98,7 @@
         android:textAlignment="center"
         android:textColor="@android:color/background_light"
         android:textSize="18sp"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.508"

@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         postBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                closeKeyboard();
                 new asyncServerPost().execute(getApplicationContext() );
             }
         });
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         getBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                closeKeyboard();
                 new asyncServerGet().execute(getApplicationContext() );
             }
         });
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         deleteBtn .setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                closeKeyboard();
                 new asyncServerDelete().execute(getApplicationContext() );
             }
         });
@@ -57,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
 
     //asynchronous task to send request
     private class asyncServerPost extends AsyncTask<Context, Void, String> {
+
+        protected void onPreExecute() {
+            serverResponseText.setText("Waiting for response");
+        }
 
         protected String doInBackground(Context... input) {
             String returnText = "";
@@ -72,14 +80,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(String returnText) {
-            //updates text boxes based on result of searching for stop
-            serverResponseText.setText("Sending a POST request: \n " + returnText);
-
+            latText.setText("Latitude");
+            lngText.setText("Longitude");
+            encryptText.setText("Encryption");
+            serverResponseText.setText("Sending a POST request: \n Created new entry with ID: " + returnText);
         }
     }
 
     //asynchronous task to send request
     private class asyncServerGet extends AsyncTask<Context, Void, String> {
+
+        protected void onPreExecute() {
+            serverResponseText.setText("Waiting for response");
+        }
 
         protected String doInBackground(Context... input) {
             String returnText = "";
@@ -92,14 +105,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(String returnText) {
-            //updates text boxes based on result of searching for stop
-            serverResponseText.setText("Sending a GET request: \n " + returnText);
+            idText.setText("ID");
+            if(returnText.equals("")) {
+                serverResponseText.setText("Sent a GET request: \n No entry found with this ID!");
+            } else {
+                serverResponseText.setText("Sent a GET request: \n " + returnText);
+            }
+
 
         }
     }
 
     //asynchronous task to send request
     private class asyncServerDelete extends AsyncTask<Context, Void, String> {
+
+        protected void onPreExecute() {
+            serverResponseText.setText("Waiting for response");
+        }
 
         protected String doInBackground(Context... input) {
             String returnText = "";
@@ -113,8 +135,20 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(String returnText) {
             //updates text boxes based on result of searching for stop
+            idText.setText("ID");
             serverResponseText.setText("Sending a DELETE request: \n " + returnText);
 
         }
+    }
+
+    /*
+        Referenced to https://stackoverflow.com/questions/35941051/on-button-click-hide-keyboard
+     */
+    private void closeKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }
