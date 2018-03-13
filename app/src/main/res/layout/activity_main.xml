@@ -4,31 +4,103 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:textAlignment="center"
     tools:context="halcyon_daze.github.io.sdsecure.MainActivity">
 
     <EditText
-        android:id="@+id/request"
+        android:id="@+id/idText"
         android:layout_width="120dp"
         android:layout_height="53dp"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.303"
+        android:layout_marginTop="16dp"
+        android:text="ID"
+        app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/sendRequestButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
+    <EditText
+        android:id="@+id/lngText"
+        android:layout_width="120dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="40dp"
+        android:text="Longitude"
+        app:layout_constraintHorizontal_bias="0.204"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/latText" />
+
+    <EditText
+        android:id="@+id/latText"
+        android:layout_width="120dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="40dp"
+        android:text="Latitude"
+        app:layout_constraintHorizontal_bias="0.204"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/idText" />
+
+    <EditText
+        android:id="@+id/encryptText"
+        android:layout_width="120dp"
+        android:layout_height="53dp"
         android:layout_marginTop="8dp"
-        android:text="Button"
+        android:text="Encryption"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.204"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lngText"
+        app:layout_constraintVertical_bias="0.118" />
+
+
+    <Button
+        android:id="@+id/postBut"
+        android:layout_width="115dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="40dp"
+        android:text="POST"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.586"
+        app:layout_constraintStart_toEndOf="@+id/idText"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/getBut"
+        android:layout_width="115dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="224dp"
+        android:layout_marginTop="52dp"
+        android:text="GET"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postBut" />
+
+    <Button
+        android:id="@+id/deleteBut"
+        android:layout_width="115dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="224dp"
+        android:layout_marginTop="48dp"
+        android:text="DELETE"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/getBut" />
+
+    <TextView
+        android:id="@+id/serverResponseText"
+        android:layout_width="309dp"
+        android:layout_height="115dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/black"
+        android:text="Server Response"
+        android:textAlignment="center"
+        android:textColor="@android:color/background_light"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/request"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginRight="8dp" />
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
