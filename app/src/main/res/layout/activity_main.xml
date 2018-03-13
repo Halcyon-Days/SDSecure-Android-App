@@ -58,37 +58,35 @@
         android:id="@+id/postBut"
         android:layout_width="115dp"
         android:layout_height="60dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginTop="36dp"
         android:text="POST"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.586"
-        app:layout_constraintStart_toEndOf="@+id/idText"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/getBut"
         android:layout_width="115dp"
         android:layout_height="60dp"
-        android:layout_marginStart="224dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginTop="44dp"
         android:text="GET"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/postBut" />
 
     <Button
         android:id="@+id/deleteBut"
         android:layout_width="115dp"
         android:layout_height="60dp"
-        android:layout_marginStart="224dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginTop="40dp"
         android:text="DELETE"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/getBut" />
 
     <TextView
         android:id="@+id/serverResponseText"
-        android:layout_width="309dp"
+        android:layout_width="330dp"
         android:layout_height="115dp"
         android:layout_marginBottom="24dp"
         android:layout_marginEnd="8dp"

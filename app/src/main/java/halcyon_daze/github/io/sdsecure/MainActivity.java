@@ -13,16 +13,22 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
-    final EditText idText = (EditText) findViewById(R.id.idText);
-    final EditText latText = (EditText) findViewById(R.id.latText);
-    final EditText lngText = (EditText) findViewById(R.id.lngText);
-    final EditText encryptText = (EditText) findViewById(R.id.encryptText);
-    final TextView serverResponseText = (TextView) findViewById(R.id.serverResponseText);
+    EditText idText;
+    EditText latText;
+    EditText lngText;
+    EditText encryptText;
+    TextView serverResponseText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        idText = (EditText) findViewById(R.id.idText);
+        latText = (EditText) findViewById(R.id.latText);
+        lngText = (EditText) findViewById(R.id.lngText);
+        encryptText = (EditText) findViewById(R.id.encryptText);
+        serverResponseText = (TextView) findViewById(R.id.serverResponseText);
 
         Button postBtn = findViewById(R.id.postBut);
         postBtn.setOnClickListener(new View.OnClickListener() {
