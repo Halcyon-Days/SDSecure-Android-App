@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         idText = (EditText) findViewById(R.id.idText);
         latText = (EditText) findViewById(R.id.latText);
-        lngText = (EditText) findViewById(R.id.lngText);
+        lngText = (EditText) findViewById(R.id.usernameText);
         encryptText = (EditText) findViewById(R.id.encryptText);
         serverResponseText = (TextView) findViewById(R.id.serverResponseText);
 
@@ -111,8 +111,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 serverResponseText.setText("Sent a GET request: \n " + returnText);
             }
-
-
         }
     }
 

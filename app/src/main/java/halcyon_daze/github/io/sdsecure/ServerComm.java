@@ -37,7 +37,6 @@ public class ServerComm {
             HttpURLConnection urlConnection = (HttpURLConnection) pageURL.openConnection();
             urlConnection.setRequestMethod(requestType);
 
-
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             result = convertStreamToString(in);
 
