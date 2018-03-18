@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/elementNum"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:ems="10"
+        android:inputType="number"
+        android:text="elementNum"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="2dp" />
+
+    <TextView
+        android:id="@+id/latitudeText"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/elementNum"
+        android:layout_toEndOf="@+id/elementNum"
+        android:layout_toRightOf="@+id/elementNum"
+        android:text="Latitude"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="425dp"
+        tools:layout_editor_absoluteY="40dp" />
+
+    <TextView
+        android:id="@+id/longitudeText"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/latitudeText"
+        android:layout_alignBottom="@+id/latitudeText"
+        android:layout_toEndOf="@+id/latitudeText"
+        android:layout_toRightOf="@+id/latitudeText"
+        android:text="Longitude"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="314dp"
+        tools:layout_editor_absoluteY="40dp" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="125dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/longitudeText"
+        android:layout_toEndOf="@+id/longitudeText"
+        android:layout_toRightOf="@+id/longitudeText"
+        android:text="Status"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="77dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <TextView
+        android:id="@+id/lastTimeText"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/longitudeText"
+        android:layout_toEndOf="@+id/longitudeText"
+        android:layout_toRightOf="@+id/longitudeText"
+        android:text="Last Time"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="77dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+</LinearLayout>
