@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,11 +22,15 @@ public class login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        //prevents keyboard from automatically opening
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
         username = findViewById(R.id.usernameText);
         password = findViewById(R.id.passwordText);
         responseText = findViewById(R.id.responseText);
-        Button loginBtn = findViewById(R.id.newAccountBtn);
-        Button newAccountBtn = findViewById(R.id.newAccountBtn);
+        Button loginBtn = findViewById(R.id.loginBtn);
+        Button newAccountBtn = findViewById(R.id.createNewAccountBtn);
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,7 +38,7 @@ public class login extends AppCompatActivity {
                 closeKeyboard();
 
                 if(authenticateLogin(username.getText().toString(), password.getText().toString())) {
-                    Intent startIntent = new Intent(getApplicationContext(), newAccount.class);
+                    Intent startIntent = new Intent(getApplicationContext(), listEncryptions.class);
                     startActivity(startIntent);
                 } else {
                     responseText.setText("Invalid username or password!");
