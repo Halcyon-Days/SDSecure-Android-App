@@ -1,8 +1,10 @@
 package halcyon_daze.github.io.sdsecure;
 
+import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -57,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
                 new asyncServerDelete().execute(getApplicationContext() );
             }
         });
+
+        // Paul: need this for Android 6.0+, dynamic permission
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                1);
     }
 
     //asynchronous task to send request
