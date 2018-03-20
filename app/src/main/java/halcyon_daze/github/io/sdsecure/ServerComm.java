@@ -1,10 +1,27 @@
 package halcyon_daze.github.io.sdsecure;
 
+import android.os.Environment;
+import android.util.Log;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.net.URL;
@@ -17,13 +34,15 @@ public class ServerComm {
     public static final String POST = "POST";
     public static final String DELETE = "DELETE";
     public static final String GET = "GET";
-    private static final String URL = "http://pk080596pi.ddns.net:5000/history?";
+    private static final String URL = "http://pk080596pi.ddns.net:5000/";
+    private static final String URL_HISTORY = URL + "history?";
+    private static final String URL_UPLOAD = URL + "upload";
 
     /*
      * Wrapper for send request, assuming url is constant
      */
     public static String getRequest (String requestType, HashMap<String, String> parameters){
-        return sendRequest(requestType, URL, parameters);
+        return sendRequest(requestType, URL_HISTORY, parameters);
     }
 
     public static String sendRequest (String requestType, String url, HashMap<String, String> parameters){
@@ -45,6 +64,34 @@ public class ServerComm {
         }
 
         return result;
+    }
+
+    public static int uploadImage (File file, String username) {
+        HttpClient httpClient = new DefaultHttpClient();
+        try {
+            //String filename = "guy.jpg";
+            //File file = new File(Environment.getExternalStorageDirectory() + File.separator + filename);
+            FileBody body = new FileBody(file);
+            HttpPost request = new HttpPost(URL_UPLOAD);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addPart("file", body);
+            builder.addPart("name", new StringBody(username));
+
+            final HttpEntity entity = builder.build();
+            request.setEntity(entity);
+            HttpResponse response = httpClient.execute(request);
+
+            return response.getStatusLine().getStatusCode();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            httpClient.getConnectionManager().shutdown();
+        }
+        return -1;
     }
 
     private static String convertStreamToString (InputStream in) {
