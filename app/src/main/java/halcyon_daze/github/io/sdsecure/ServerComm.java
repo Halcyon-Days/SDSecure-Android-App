@@ -35,14 +35,16 @@ public class ServerComm {
     public static final String DELETE = "DELETE";
     public static final String GET = "GET";
     private static final String URL = "http://pk080596pi.ddns.net:5000/";
-    private static final String URL_HISTORY = URL + "history?";
-    private static final String URL_UPLOAD = URL + "upload";
+    // TODO: EHHHH
+    public static final String URL_HISTORY = URL + "history?";
+    public static final String URL_LOGIN = URL + "users?";
+    public static final String URL_UPLOAD = URL + "upload";
 
     /*
      * Wrapper for send request, assuming url is constant
      */
-    public static String getRequest (String requestType, HashMap<String, String> parameters){
-        return sendRequest(requestType, URL_HISTORY, parameters);
+    public static String getRequest (String requestType, HashMap<String, String> parameters, String url){
+        return sendRequest(requestType, url, parameters);
     }
 
     public static String sendRequest (String requestType, String url, HashMap<String, String> parameters){

@@ -65,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                 1);
 
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.CAMERA},
+                1);
         }
 
 
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             params.put("lng",lngText.getText().toString());
             params.put("encryption",encryptText.getText().toString());
 
-            returnText = ServerComm.getRequest(ServerComm.POST, params);
+            returnText = ServerComm.getRequest(ServerComm.POST, params, ServerComm.URL_HISTORY);
 
             return returnText;
         }
@@ -108,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("id",idText.getText().toString());
-            returnText = ServerComm.getRequest(ServerComm.GET, params);
+            returnText = ServerComm.getRequest(ServerComm.GET, params, ServerComm.URL_HISTORY);
 
             return returnText;
         }
@@ -135,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("id",idText.getText().toString());
-            returnText = ServerComm.getRequest(ServerComm.DELETE, params);
+            returnText = ServerComm.getRequest(ServerComm.DELETE, params, ServerComm.URL_HISTORY);
 
             return returnText;
         }

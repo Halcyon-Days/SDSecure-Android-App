@@ -2,6 +2,7 @@ package halcyon_daze.github.io.sdsecure;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,6 +11,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class login extends AppCompatActivity {
 
@@ -37,7 +41,7 @@ public class login extends AppCompatActivity {
             public void onClick(View v) {
                 closeKeyboard();
 
-                if(authenticateLogin(username.getText().toString(), password.getText().toString())) {
+                if(authenticateLogin()) {
                     Intent startIntent = new Intent(getApplicationContext(), Navigation.class);
                     startActivity(startIntent);
                 } else {
@@ -55,10 +59,17 @@ public class login extends AppCompatActivity {
         });
     }
 
-    private boolean authenticateLogin(String username, String password) {
-        //authenticate from server
-
-        return true;
+    private boolean authenticateLogin() {
+        AsyncTask<Context, Void, String> task = new asyncServerLogin();
+        String result = "";
+        try {
+            result = task.execute(getApplicationContext()).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return result.contains("success");
     }
 
     /*
@@ -70,5 +81,21 @@ public class login extends AppCompatActivity {
 
         inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    private class asyncServerLogin extends AsyncTask<Context, Void, String> {
+
+        @Override
+        protected String doInBackground(Context... contexts) {
+            String returnText = "";
+
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("name", username.getText().toString());
+            params.put("password", password.getText().toString());
+
+            returnText = ServerComm.getRequest(ServerComm.GET, params, ServerComm.URL_LOGIN);
+
+            return returnText;
+        }
     }
 }
