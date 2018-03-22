@@ -38,7 +38,7 @@ public class login extends AppCompatActivity {
                 closeKeyboard();
 
                 if(authenticateLogin(username.getText().toString(), password.getText().toString())) {
-                    Intent startIntent = new Intent(getApplicationContext(), listEncryptions.class);
+                    Intent startIntent = new Intent(getApplicationContext(), Navigation.class);
                     startActivity(startIntent);
                 } else {
                     responseText.setText("Invalid username or password!");

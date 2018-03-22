@@ -12,7 +12,6 @@
         android:layout_width="120dp"
         android:layout_height="53dp"
         android:layout_marginTop="16dp"
-        android:text="ID"
         android:hint="ID"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -24,7 +23,6 @@
         android:layout_width="120dp"
         android:layout_height="53dp"
         android:layout_marginTop="40dp"
-        android:text="Longitude"
         android:hint="Longitude"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -36,7 +34,6 @@
         android:layout_width="120dp"
         android:layout_height="53dp"
         android:layout_marginTop="40dp"
-        android:text="Latitude"
         android:hint="Latitude"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -48,7 +45,6 @@
         android:layout_width="120dp"
         android:layout_height="53dp"
         android:layout_marginTop="36dp"
-        android:text="Encryption"
         android:hint="Encryption"
         app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -62,9 +58,11 @@
         android:layout_height="60dp"
         android:layout_marginEnd="36dp"
         android:layout_marginTop="36dp"
+        android:padding="2dp"
         android:text="POST"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlCompat" />
 
     <Button
         android:id="@+id/getBut"
@@ -72,6 +70,7 @@
         android:layout_height="60dp"
         android:layout_marginEnd="36dp"
         android:layout_marginTop="44dp"
+        android:padding="2dp"
         android:text="GET"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/postBut" />
@@ -82,6 +81,7 @@
         android:layout_height="60dp"
         android:layout_marginEnd="36dp"
         android:layout_marginTop="40dp"
+        android:padding="2dp"
         android:text="DELETE"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/getBut" />
@@ -102,14 +102,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-<!--
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_navigation"
-        app:menu="@menu/activity_navigation_drawer" />-->
+
 
 </android.support.constraint.ConstraintLayout>

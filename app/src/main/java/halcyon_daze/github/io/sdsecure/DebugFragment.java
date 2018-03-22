@@ -2,12 +2,14 @@ package halcyon_daze.github.io.sdsecure;
 
 import android.Manifest;
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,18 +18,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link BlankFragment.OnFragmentInteractionListener} interface
+ * {@link DebugFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link BlankFragment#newInstance} factory method to
+ * Use the {@link DebugFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BlankFragment extends android.app.Fragment {
+public class DebugFragment extends android.app.Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -46,7 +50,7 @@ public class BlankFragment extends android.app.Fragment {
     TextView serverResponseText;
     DrawerLayout mDrawerLayout;
 
-    public BlankFragment() {
+    public DebugFragment() {
         // Required empty public constructor
     }
 
@@ -56,11 +60,11 @@ public class BlankFragment extends android.app.Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment BlankFragment.
+     * @return A new instance of fragment DebugFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static BlankFragment newInstance(String param1, String param2) {
-        BlankFragment fragment = new BlankFragment();
+    public static DebugFragment newInstance(String param1, String param2) {
+        DebugFragment fragment = new DebugFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -76,8 +80,43 @@ public class BlankFragment extends android.app.Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        //activity code
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.activity_main, container, false);
+    }
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        //activity code
+        super.onActivityCreated(savedInstanceState);
         idText = (EditText) getView().findViewById(R.id.idText);
         latText = (EditText) getView().findViewById(R.id.latText);
         lngText = (EditText) getView().findViewById(R.id.usernameText);
@@ -115,37 +154,6 @@ public class BlankFragment extends android.app.Fragment {
         ActivityCompat.requestPermissions(getActivity(),
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                 1);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.activity_main, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     /**
@@ -187,9 +195,9 @@ public class BlankFragment extends android.app.Fragment {
         }
 
         protected void onPostExecute(String returnText) {
-            latText.setText("Latitude");
-            lngText.setText("Longitude");
-            encryptText.setText("Encryption");
+            latText.setText("");
+            lngText.setText("");
+            encryptText.setText("");
             serverResponseText.setText("Sending a POST request: \n Created new entry with ID: " + returnText);
         }
     }
@@ -212,7 +220,7 @@ public class BlankFragment extends android.app.Fragment {
         }
 
         protected void onPostExecute(String returnText) {
-            idText.setText("ID");
+            idText.setText("");
             if(returnText.equals("")) {
                 serverResponseText.setText("Sent a GET request: \n No entry found with this ID!");
             } else {
@@ -240,7 +248,7 @@ public class BlankFragment extends android.app.Fragment {
 
         protected void onPostExecute(String returnText) {
             //updates text boxes based on result of searching for stop
-            idText.setText("ID");
+            idText.setText("");
             serverResponseText.setText("Sending a DELETE request: \n " + returnText);
 
         }

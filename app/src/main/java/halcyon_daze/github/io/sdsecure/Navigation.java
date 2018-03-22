@@ -1,6 +1,7 @@
 package halcyon_daze.github.io.sdsecure;
 
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,9 +14,20 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class Navigation extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    FragmentManager fm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,17 +36,13 @@ public class Navigation extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FragmentManager fm = getFragmentManager();
-        fm.beginTransaction().replace(R.id.content_frame, BlankFragment.newInstance("","")).commit();
+        // This puts the fragment into the blank frame space specified in content_navigation.xml
+        fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("","")).commit();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        //prevents keyboard from automatically opening
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -84,18 +92,32 @@ public class Navigation extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_history) {
+            fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("","")).commit();
+        } else if (id == R.id.nav_map) {
 
-        } else if (id == R.id.nav_slideshow) {
+            // Implements the google maps fragment
+            MapFragment mapFragment = MapFragment.newInstance();
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
 
-        } else if (id == R.id.nav_manage) {
+                    //CREATES MARKER FOR LOCATIONS OF SD CARD
+                    LatLng latLng = new LatLng( 49.2606, -123.2460);
+                    googleMap.addMarker(new MarkerOptions().position(latLng)
+                            .title("UBC"));
 
-        } else if (id == R.id.nav_share) {
+                    //focuses the map
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                }
+            });
 
-        } else if (id == R.id.nav_send) {
-
+            fm.beginTransaction().replace(R.id.content_frame, mapFragment).commit();
+        } else if (id == R.id.nav_debug) {
+            fm.beginTransaction().replace(R.id.content_frame, DebugFragment.newInstance("","")).commit();
+        } else if (id == R.id.nav_logout) {
+            Intent startIntent = new Intent(getApplicationContext(), login.class);
+            startActivity(startIntent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
