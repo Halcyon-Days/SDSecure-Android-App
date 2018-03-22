@@ -4,11 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -68,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                 1);
 
-    }
+        }
+
 
     //asynchronous task to send request
     private class asyncServerPost extends AsyncTask<Context, Void, String> {

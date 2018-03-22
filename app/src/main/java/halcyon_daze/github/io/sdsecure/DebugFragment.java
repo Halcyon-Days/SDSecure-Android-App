@@ -2,14 +2,12 @@ package halcyon_daze.github.io.sdsecure;
 
 import android.Manifest;
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 
@@ -95,7 +91,7 @@ public class DebugFragment extends android.app.Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
-
+/*
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -106,7 +102,7 @@ public class DebugFragment extends android.app.Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
-
+*/
     @Override
     public void onDetach() {
         super.onDetach();
