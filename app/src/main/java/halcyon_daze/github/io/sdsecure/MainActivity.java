@@ -2,9 +2,11 @@ package halcyon_daze.github.io.sdsecure;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -38,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 closeKeyboard();
-                new asyncServerPost().execute(getApplicationContext() );
+                new asyncServerPost().execute(getApplicationContext());
             }
         });
 
@@ -47,29 +49,34 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 closeKeyboard();
-                new asyncServerGet().execute(getApplicationContext() );
+                new asyncServerGet().execute(getApplicationContext());
             }
         });
 
         Button deleteBtn = findViewById(R.id.deleteBut);
-        deleteBtn .setOnClickListener(new View.OnClickListener() {
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 closeKeyboard();
-                new asyncServerDelete().execute(getApplicationContext() );
+                new asyncServerDelete().execute(getApplicationContext());
             }
         });
 
-        // Paul: need this for Android 6.0+, dynamic permission
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                1);
-
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.CAMERA},
-                1);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Paul: need this for Android 6.0+, dynamic permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    1);
         }
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    1);
+        }
+    }
 
     //asynchronous task to send request
     private class asyncServerPost extends AsyncTask<Context, Void, String> {

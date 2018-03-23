@@ -3,9 +3,7 @@ package halcyon_daze.github.io.sdsecure;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,14 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -106,6 +102,9 @@ public class Navigation extends AppCompatActivity
                     LatLng latLng = new LatLng( 49.2606, -123.2460);
                     googleMap.addMarker(new MarkerOptions().position(latLng)
                             .title("UBC"));
+
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng( 49.234426, -123.1529))
+                            .title("Calgary"));
 
                     //focuses the map
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
