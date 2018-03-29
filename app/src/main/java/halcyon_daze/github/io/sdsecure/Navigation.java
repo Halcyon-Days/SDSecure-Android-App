@@ -1,8 +1,11 @@
 package halcyon_daze.github.io.sdsecure;
 
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -12,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,10 +24,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class Navigation extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    FragmentManager fm;
+    private ArrayList<SDCard> cardList;
+    private FragmentManager fm;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +44,15 @@ public class Navigation extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Bundle extras = getIntent().getExtras();
+        if(extras != null) {
+            username = extras.getString("username");
+        } else {
+            username = "";
+        }
+
         // This puts the fragment into the blank frame space specified in content_navigation.xml
         fm = getFragmentManager();
-        fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("","")).commit();
 
         //prevents keyboard from automatically opening
         getWindow().setSoftInputMode(
@@ -48,6 +66,23 @@ public class Navigation extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //changes navigation bar text to username
+        TextView usernameText = navigationView.getHeaderView(0).findViewById(R.id.usernameText);
+        usernameText.setText(username);
+
+        //handler for periodically refreshing the stops in the list according to the refreshtimer value
+        final Handler refreshHandler = new Handler();
+        Runnable refreshCode = new Runnable() {
+            @Override
+            public void run() {
+                new asyncServerList().execute();
+                refreshHandler.postDelayed(this, 1000*60*10);
+            }
+        };
+
+        //starts refresh handler
+        refreshHandler.post(refreshCode);
     }
 
     @Override
@@ -89,7 +124,7 @@ public class Navigation extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_history) {
-            fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("","")).commit();
+            fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("",cardList)).commit();
         } else if (id == R.id.nav_map) {
 
             // Implements the google maps fragment
@@ -100,14 +135,15 @@ public class Navigation extends AppCompatActivity
 
                     //CREATES MARKER FOR LOCATIONS OF SD CARD
                     LatLng latLng = new LatLng( 49.2606, -123.2460);
-                    googleMap.addMarker(new MarkerOptions().position(latLng)
-                            .title("UBC"));
 
-                    googleMap.addMarker(new MarkerOptions().position(new LatLng( 49.234426, -123.1529))
-                            .title("Calgary"));
-
-                    //focuses the map
+                    //focuses the map on ubc
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+
+                    for(SDCard s: cardList) {
+                        googleMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(Double.valueOf(s.getLatitude()), Double.valueOf(s.getLongitude())))
+                                .title(s.getID()));
+                    }
                 }
             });
 
@@ -122,5 +158,41 @@ public class Navigation extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    //asynchronous task to send list request
+    private class asyncServerList extends AsyncTask<Context, Void, String> {
+
+        protected void onPreExecute() {
+
+        }
+
+        protected String doInBackground(Context... input) {
+            String returnText = "";
+
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("name",username);
+            returnText = ServerComm.getRequest(ServerComm.GET, params, ServerComm.URL_HISTORY_LIST);
+
+            return returnText;
+        }
+
+        protected void onPostExecute(String returnText) {
+            if(cardList == null) {
+                updateList(returnText);
+                fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("",cardList)).commit();
+            }
+
+            updateList(returnText);
+        }
+    }
+
+    private void updateList(String returnText) {
+        try {
+            JSONArray testArray = new JSONArray(returnText);
+            cardList = SDCard.parseSDJSON(testArray);
+        } catch(JSONException e) {
+            System.out.println("Json parse failed");
+        }
     }
 }

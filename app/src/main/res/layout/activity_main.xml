@@ -51,6 +51,16 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/usernameText" />
 
+    <EditText
+        android:id="@+id/nameText"
+        android:layout_width="120dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="128dp"
+        android:hint="Name"
+        app:layout_constraintHorizontal_bias="0.204"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/usernameText" />
 
     <Button
         android:id="@+id/postBut"
@@ -86,13 +96,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/getBut" />
 
+    <Button
+        android:id="@+id/listBut"
+        android:layout_width="115dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginTop="144dp"
+        android:padding="2dp"
+        android:text="LIST"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/getBut" />
+
     <TextView
         android:id="@+id/serverResponseText"
         android:layout_width="330dp"
         android:layout_height="115dp"
-        android:layout_marginBottom="292dp"
+        android:layout_marginBottom="220dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:maxLines = "4"
+        android:scrollbars = "vertical"
         android:background="@android:color/black"
         android:text="Server Response"
         android:textAlignment="center"

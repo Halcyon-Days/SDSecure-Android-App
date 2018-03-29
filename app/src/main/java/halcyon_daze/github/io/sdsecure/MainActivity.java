@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //asynchronous task to send request
+    //asynchronous task to send get request
     private class asyncServerGet extends AsyncTask<Context, Void, String> {
 
         protected void onPreExecute() {
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //asynchronous task to send request
+    //asynchronous task to send delete request
     private class asyncServerDelete extends AsyncTask<Context, Void, String> {
 
         protected void onPreExecute() {

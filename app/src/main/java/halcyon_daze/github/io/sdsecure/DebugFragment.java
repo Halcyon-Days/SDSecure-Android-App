@@ -1,11 +1,9 @@
 package halcyon_daze.github.io.sdsecure;
 
-import android.Manifest;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
@@ -43,6 +41,7 @@ public class DebugFragment extends android.app.Fragment {
     EditText latText;
     EditText lngText;
     EditText encryptText;
+    EditText nameText;
     TextView serverResponseText;
     DrawerLayout mDrawerLayout;
 
@@ -118,7 +117,8 @@ public class DebugFragment extends android.app.Fragment {
         lngText = (EditText) getView().findViewById(R.id.usernameText);
         encryptText = (EditText) getView().findViewById(R.id.encryptText);
         serverResponseText = (TextView) getView().findViewById(R.id.serverResponseText);
-
+        nameText = (EditText) getView().findViewById(R.id.nameText);
+        //serverResponseText.setMovementMethod(new ScrollingMovementMethod());
         Button postBtn = getView().findViewById(R.id.postBut);
         postBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,10 +146,14 @@ public class DebugFragment extends android.app.Fragment {
             }
         });
 
-        // Paul: need this for Android 6.0+, dynamic permission
-        ActivityCompat.requestPermissions(getActivity(),
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                1);
+        Button listBtn = getView().findViewById(R.id.listBut);
+        listBtn .setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeKeyboard();
+                new asyncServerList().execute(getActivity() );
+            }
+        });
     }
 
     /**
@@ -170,7 +174,7 @@ public class DebugFragment extends android.app.Fragment {
 
 
 
-    //asynchronous task to send request
+    //asynchronous task to send post request
     private class asyncServerPost extends AsyncTask<Context, Void, String> {
 
         protected void onPreExecute() {
@@ -184,6 +188,7 @@ public class DebugFragment extends android.app.Fragment {
             params.put("lat",latText.getText().toString());
             params.put("lng",lngText.getText().toString());
             params.put("encryption",encryptText.getText().toString());
+            params.put("name",nameText.getText().toString());
 
             returnText = ServerComm.getRequest(ServerComm.POST, params, ServerComm.URL_HISTORY);
 
@@ -194,11 +199,12 @@ public class DebugFragment extends android.app.Fragment {
             latText.setText("");
             lngText.setText("");
             encryptText.setText("");
+            nameText.setText("");
             serverResponseText.setText("Sending a POST request: \n Created new entry with ID: " + returnText);
         }
     }
 
-    //asynchronous task to send request
+    //asynchronous task to send get request
     private class asyncServerGet extends AsyncTask<Context, Void, String> {
 
         protected void onPreExecute() {
@@ -219,13 +225,15 @@ public class DebugFragment extends android.app.Fragment {
             idText.setText("");
             if(returnText.equals("")) {
                 serverResponseText.setText("Sent a GET request: \n No entry found with this ID!");
-            } else {
+            } else if(returnText.equals("Request failed!")){
+                serverResponseText.setText(returnText);
+            }else {
                 serverResponseText.setText("Sent a GET request: \n " + returnText);
             }
         }
     }
 
-    //asynchronous task to send request
+    //asynchronous task to send delete request
     private class asyncServerDelete extends AsyncTask<Context, Void, String> {
 
         protected void onPreExecute() {
@@ -246,6 +254,31 @@ public class DebugFragment extends android.app.Fragment {
             //updates text boxes based on result of searching for stop
             idText.setText("");
             serverResponseText.setText("Sending a DELETE request: \n " + returnText);
+
+        }
+    }
+
+    //asynchronous task to send list request
+    private class asyncServerList extends AsyncTask<Context, Void, String> {
+
+        protected void onPreExecute() {
+            serverResponseText.setText("Waiting for response");
+        }
+
+        protected String doInBackground(Context... input) {
+            String returnText = "";
+
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("name",nameText.getText().toString());
+            returnText = ServerComm.getRequest(ServerComm.GET, params, ServerComm.URL_HISTORY_LIST);
+
+            return returnText;
+        }
+
+        protected void onPostExecute(String returnText) {
+            //updates text boxes based on result of searching for stop
+            nameText.setText("");
+            serverResponseText.setText("Asking for List request: \n " + returnText);
 
         }
     }

@@ -20,8 +20,8 @@ import java.util.ArrayList;
  */
 public class ListFragment extends android.app.Fragment {
 
-    ArrayList<SDCard> cardList;
-    ListView cardListView;
+    private ArrayList<SDCard> cardList;
+    private ListView cardListView;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -30,7 +30,7 @@ public class ListFragment extends android.app.Fragment {
 
     // TODO: Rename and change types of parameters
     private String mParam1;
-    private String mParam2;
+    private ArrayList<SDCard> mParam2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -47,11 +47,11 @@ public class ListFragment extends android.app.Fragment {
      * @return A new instance of fragment ListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ListFragment newInstance(String param1, String param2) {
+    public static ListFragment newInstance(String param1, ArrayList<SDCard> param2) {
         ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putSerializable(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,7 +61,7 @@ public class ListFragment extends android.app.Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            cardList = (ArrayList<SDCard>) getArguments().getSerializable(ARG_PARAM2);
         }
     }
 
@@ -77,6 +77,7 @@ public class ListFragment extends android.app.Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+
     }
 /*
     @Override
@@ -100,9 +101,10 @@ public class ListFragment extends android.app.Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         //activity code
         super.onActivityCreated(savedInstanceState);
-        cardList = new ArrayList<SDCard>();
+
         //FOR TESTING ONLY
-        testListCreate();
+        //cardList = new ArrayList<SDCard>();
+        //SDCard.testListCreate();
 
         cardListView = getView().findViewById(R.id.cardList);
 
@@ -124,11 +126,5 @@ public class ListFragment extends android.app.Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
-    }
-
-    private void testListCreate() {
-        cardList.add(new SDCard("1", "1", "1", "2018-03-12T12:00:00"));
-        cardList.add(new SDCard("2", "2", "2", "2018-03-13T1:00:00"));
-        cardList.add(new SDCard("3", "3", "3", "2018-03-14T2:00:00"));
     }
 }

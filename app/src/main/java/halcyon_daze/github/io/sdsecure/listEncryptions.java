@@ -17,8 +17,6 @@ public class listEncryptions extends AppCompatActivity {
         setContentView(R.layout.activity_list_encryptions);
 
         cardList = new ArrayList<SDCard>();
-        //FOR TESTING ONLY
-        testListCreate();
 
         cardListView = findViewById(R.id.cardList);
 
@@ -27,10 +25,4 @@ public class listEncryptions extends AppCompatActivity {
         cardListView.setAdapter(cardListAdapter);
     }
 
-
-    private void testListCreate() {
-        cardList.add(new SDCard("1", "1", "1", "2018-03-12T12:00:00"));
-        cardList.add(new SDCard("2", "2", "2", "2018-03-13T1:00:00"));
-        cardList.add(new SDCard("3", "3", "3", "2018-03-14T2:00:00"));
-    }
 }

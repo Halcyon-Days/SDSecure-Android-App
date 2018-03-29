@@ -1,13 +1,9 @@
 package halcyon_daze.github.io.sdsecure;
 
-import android.os.Environment;
-import android.util.Log;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
@@ -16,15 +12,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.util.HashMap;
 import java.net.URL;
+import java.util.HashMap;
 
 /**
  * Created by Christopher on 2018-03-12.
@@ -39,7 +34,7 @@ public class ServerComm {
     public static final String URL_HISTORY = URL + "history?";
     public static final String URL_LOGIN = URL + "users?";
     public static final String URL_UPLOAD = URL + "upload";
-
+    public static final String URL_HISTORY_LIST = URL + "history/user?";
     /*
      * Wrapper for send request, assuming url is constant
      */
@@ -49,7 +44,7 @@ public class ServerComm {
 
     public static String sendRequest (String requestType, String url, HashMap<String, String> parameters){
         String result = "";
-
+        System.setProperty("http.keepAlive", "false");
         try {
             URL pageURL = new URL(addParams(url, parameters));
 
@@ -57,10 +52,12 @@ public class ServerComm {
 
             HttpURLConnection urlConnection = (HttpURLConnection) pageURL.openConnection();
             urlConnection.setRequestMethod(requestType);
+            urlConnection.setRequestProperty("Connection","Keep-Alive");
 
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             result = convertStreamToString(in);
-
+            in.close();
+            urlConnection.disconnect();
         } catch (IOException e) {
             result = "Request failed";
         }

@@ -62,6 +62,7 @@ public class login extends AppCompatActivity {
 
                 if(authenticateLogin()) {
                     Intent startIntent = new Intent(getApplicationContext(), Navigation.class);
+                    startIntent.putExtra("username", username.getText().toString());
                     startActivity(startIntent);
                 } else {
                     responseText.setText("Invalid username or password!");
