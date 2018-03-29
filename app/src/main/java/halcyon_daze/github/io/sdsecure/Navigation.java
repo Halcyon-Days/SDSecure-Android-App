@@ -82,7 +82,8 @@ public class Navigation extends AppCompatActivity
         };
 
         //starts refresh handler
-        refreshHandler.post(refreshCode);
+       // refreshHandler.post(refreshCode);
+        fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("","")).commit();
     }
 
     @Override
@@ -148,6 +149,8 @@ public class Navigation extends AppCompatActivity
             });
 
             fm.beginTransaction().replace(R.id.content_frame, mapFragment).commit();
+        } else if (id == R.id.nav_blue) {
+            fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("","")).commit();
         } else if (id == R.id.nav_debug) {
             fm.beginTransaction().replace(R.id.content_frame, DebugFragment.newInstance("","")).commit();
         } else if (id == R.id.nav_logout) {

@@ -9,9 +9,13 @@
             android:icon="@drawable/ic_menu_recent_history"
             android:title="History" />
         <item
-            android:id="@+id/nav_map"
-            android:icon="@drawable/ic_menu_mapmode"
-            android:title="Map" />
+        android:id="@+id/nav_map"
+        android:icon="@drawable/ic_menu_mapmode"
+        android:title="Map" />
+        <item
+            android:id="@+id/nav_blue"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Connect to Device" />
     </group>
 
     <item android:title="Communicate">
