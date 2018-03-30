@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/SDSecure-Android-App.iml" filepath="$PROJECT_DIR$/SDSecure-Android-App.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sdsecure_android.iml" filepath="$PROJECT_DIR$/sdsecure_android.iml" />
+      <module fileurl="file://C:\workspace\SDSecure-Android-App\sdsecure_android.iml" filepath="C:\workspace\SDSecure-Android-App\sdsecure_android.iml" />
     </modules>
   </component>
 </project>

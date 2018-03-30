@@ -16,10 +16,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.vlk.multimager.activities.GalleryActivity;
+import com.vlk.multimager.utils.Constants;
+import com.vlk.multimager.utils.Image;
+import com.vlk.multimager.utils.Params;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,13 +33,13 @@ import java.util.concurrent.ExecutionException;
 
 public class newAccount extends AppCompatActivity {
 
-    private static int REQUEST_PHOTO = 1;
     private File mPhoto; // TODO: gaaaah!
 
     EditText username;
     EditText password;
     TextView responseText;
     ImageView mImageView;
+    Button mGalleryBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +54,7 @@ public class newAccount extends AppCompatActivity {
         password = findViewById(R.id.passwordText);
         responseText = findViewById(R.id.responseText);
         mImageView = findViewById(R.id.choosePhotosBtn);
+        //mGalleryBtn = findViewById(R.id.galleryBtn);
         mPhoto = null;
 
         newAccountBtn.setOnClickListener(new View.OnClickListener() {
@@ -70,46 +77,78 @@ public class newAccount extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 closeKeyboard();
-                int numPhotos = uploadPhotos();
+                // Source: https://android-arsenal.com/details/1/5241
+                Intent intent = new Intent(newAccount.this, GalleryActivity.class);
+                Params params = new Params();
+                params.setCaptureLimit(10);
+                params.setPickerLimit(10);
+                params.setToolbarColor(100);
+                params.setActionButtonColor(100);
+                params.setButtonTextColor(100);
+                intent.putExtra(Constants.KEY_PARAMS, params);
+                startActivityForResult(intent, Constants.TYPE_MULTI_PICKER);
 
-                if (numPhotos > 1) {
+                /*if (numPhotos > 1) {
                     responseText.setText(numPhotos + " photos chosen!");
                 } else if (numPhotos == 1){
                     responseText.setText(numPhotos + " photo chosen!");
                 } else {
                     responseText.setText("Error choosing photos!");
-                }
+                }*/
             }
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            mImageView.setImageBitmap(imageBitmap);
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+        switch (requestCode) {
+            case Constants.TYPE_MULTI_CAPTURE: {
+                ArrayList<Image> images = data.getParcelableArrayListExtra(Constants.KEY_BUNDLE_LIST);
+                break;
+            }
+            case Constants.TYPE_MULTI_PICKER: {
+                ArrayList<Image> images = data.getParcelableArrayListExtra(Constants.KEY_BUNDLE_LIST);
+                // TODO: clean this up if time allows
+                for (Image i : images) {
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), i.uri);
+                        Date currentTime = Calendar.getInstance().getTime();
+                        File file = new File(this.getCacheDir(), currentTime.toString() + ".jpg");
+                        try {
+                            file.createNewFile();
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                            byte[] bitmapdata = baos.toByteArray();
 
-            Date currentTime = Calendar.getInstance().getTime();
-            File file = new File(this.getCacheDir(), currentTime.toString() + ".png");
-            try {
-                file.createNewFile();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                imageBitmap.compress(Bitmap.CompressFormat.PNG, 0, baos);
-                byte[] bitmapdata = baos.toByteArray();
+                            FileOutputStream fos = new FileOutputStream(file);
+                            fos.write(bitmapdata);
+                            fos.flush();
+                            fos.close();
+                            mPhoto = file;
 
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(bitmapdata);
-                fos.flush();
-                fos.close();
-                mPhoto = file;
-
-                // TODO: there should be another button to actually upload AFTER confirming, for now upload here directly
-                if (mPhoto != null) {
-                    new asyncServerUpload().execute(getApplicationContext());
+                            // TODO: there should be another button to actually upload AFTER confirming, for now upload here directly
+                            if (mPhoto != null) {
+                                AsyncTask<Context, Void, String> task = new asyncServerUpload();
+                                try {
+                                    task.execute(getApplicationContext()).get();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                } catch (ExecutionException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            bitmap.recycle();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+                break;
             }
         }
     }
@@ -127,21 +166,6 @@ public class newAccount extends AppCompatActivity {
         return result.contains("success");
     }
 
-    /*
-    returns number of photos uploaded
-     */
-    private int uploadPhotos() {
-        dispatchTakePictureIntent();
-        return 1; // for now just 1
-    }
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_PHOTO);
-        }
-    }
-
         /*
         Referenced to https://stackoverflow.com/questions/35941051/on-button-click-hide-keyboard
      */
@@ -152,15 +176,6 @@ public class newAccount extends AppCompatActivity {
             inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
         }
-
-    private class asyncServerUpload extends AsyncTask<Context, Void, String> {
-
-        @Override
-        protected String doInBackground(Context... contexts) {
-            ServerComm.uploadImage(mPhoto, "TEMP");
-            return null;
-        }
-    }
 
     private class asyncServerRegister extends AsyncTask<Context, Void, String> {
 
@@ -175,6 +190,15 @@ public class newAccount extends AppCompatActivity {
             returnText = ServerComm.getRequest(ServerComm.POST, params, ServerComm.URL_LOGIN);
 
             return returnText;
+        }
+    }
+
+    private class asyncServerUpload extends AsyncTask<Context, Void, String> {
+
+        @Override
+        protected String doInBackground(Context... contexts) {
+            ServerComm.uploadImage(mPhoto, "TEMP");
+            return null;
         }
     }
 }
