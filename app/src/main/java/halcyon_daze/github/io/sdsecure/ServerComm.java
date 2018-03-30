@@ -29,7 +29,7 @@ public class ServerComm {
     public static final String POST = "POST";
     public static final String DELETE = "DELETE";
     public static final String GET = "GET";
-    private static final String URL = "http://192.168.1.65:5000/";
+    private static final String URL = "http://pk080596pi.ddns.net:5000/";
     // TODO: EHHHH
     public static final String URL_HISTORY = URL + "history?";
     public static final String URL_LOGIN = URL + "users?";

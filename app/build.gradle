@@ -16,10 +16,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    repositories {
-        maven { url 'https://jitpack.io' }
-    }
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
     }
@@ -37,5 +33,4 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'org.apache.httpcomponents:httpmime:4.3.1'
-    compile 'com.github.vansikrishna:Multimager:1.0.8'
 }

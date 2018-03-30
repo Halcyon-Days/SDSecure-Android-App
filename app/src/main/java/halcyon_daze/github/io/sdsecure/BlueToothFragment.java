@@ -5,14 +5,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -22,26 +19,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.vlk.multimager.utils.Constants;
-import com.vlk.multimager.utils.Image;
-
 import org.w3c.dom.Text;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-
-import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -55,16 +40,6 @@ import static android.app.Activity.RESULT_OK;
 public class BlueToothFragment extends android.app.Fragment {
 
     private static final String BLUETOOTH_MAC = "0006666CA782";
-    private static final int REQUEST_PHOTO = 1;
-    private static String result = "";
-
-    private float lat;
-    private float lng;
-    private int encrypt;
-    private String name;
-
-    private File mPhoto;
-
 
     // a bluetooth “socket” to a bluetooth device
     private BluetoothSocket mmSocket = null;
@@ -350,20 +325,6 @@ public class BlueToothFragment extends android.app.Fragment {
         } catch (Exception e) {
 
         }
-        // TODO: using fake information for now
-        lat = 10;
-        lng = 20;
-        encrypt = 1;
-        name = "test";
-        AsyncTask<Context, Void, String> task = new asyncServerUpload();
-        try {
-            result = task.execute(getActivity().getApplicationContext()).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        String ok = Integer.valueOf(result) >= 0 ? "Success" : "Failed";
         WriteToBTDevice("PinCode:XXXXXXXXX");
     }
 
@@ -374,92 +335,6 @@ public class BlueToothFragment extends android.app.Fragment {
         } catch (Exception e) {
 
         }
-        uploadPhotos();
-        String ok = result.contains("Success") ? "Success" : "Failed";
-        WriteToBTDevice(ok);
-    }
-
-    /*
-    returns number of photos uploaded
-     */
-    private int uploadPhotos() {
-        dispatchTakePictureIntent();
-        return 1; // for now just 1
-    }
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_PHOTO);
-        }
-    }
-
-    private class asyncServerUpload extends AsyncTask<Context, Void, String> {
-
-        @Override
-        protected String doInBackground(Context... contexts) {
-            ServerComm.uploadImage(mPhoto, "TEMP");
-            return null;
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_OK) {
-            return;
-        }
-        switch (requestCode) {
-            case REQUEST_PHOTO: {
-                Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-
-                Date currentTime = Calendar.getInstance().getTime();
-                File file = new File(getActivity().getCacheDir(), currentTime.toString() + ".jpg");
-                try {
-                    file.createNewFile();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                    byte[] bitmapdata = baos.toByteArray();
-
-                    FileOutputStream fos = new FileOutputStream(file);
-                    fos.write(bitmapdata);
-                    fos.flush();
-                    fos.close();
-                    mPhoto = file;
-
-                    // TODO: there should be another button to actually upload AFTER confirming, for now upload here directly
-                    if (mPhoto != null) {
-                        AsyncTask<Context, Void, String> task = new asyncServerUpload();
-                        try {
-                            result = task.execute(getActivity().getApplicationContext()).get();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            }
-        }
-    }
-
-    private class asyncServerPost extends AsyncTask<Context, Void, String> {
-
-        protected String doInBackground(Context... input) {
-            String returnText = "";
-
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put("lat", String.valueOf(lat));
-            params.put("lng", String.valueOf(lng));
-            params.put("encryption", String.valueOf(encrypt));
-            params.put("name", name);
-
-            returnText = ServerComm.getRequest(ServerComm.POST, params, ServerComm.URL_HISTORY);
-
-            return returnText;
-        }
+        WriteToBTDevice("PinCode:YYYYYYYY");
     }
 }
