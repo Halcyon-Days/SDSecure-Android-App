@@ -65,7 +65,7 @@ public class login extends AppCompatActivity {
                     startIntent.putExtra("username", username.getText().toString());
                     startActivity(startIntent);
                 } else {
-                    //responseText.setText("Invalid username or password!");
+                    responseText.setText("Invalid username or password!");
                 }
             }
         });
@@ -82,6 +82,7 @@ public class login extends AppCompatActivity {
     private boolean authenticateLogin() {
         AsyncTask<Context, Void, String> task = new asyncServerLogin();
         String result = "";
+        System.out.println("Starting new task");
         try {
             result = task.execute(getApplicationContext()).get();
         } catch (InterruptedException e) {
@@ -108,13 +109,13 @@ public class login extends AppCompatActivity {
         @Override
         protected String doInBackground(Context... contexts) {
             String returnText = "";
-
+            System.out.println("Sending request");
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("name", username.getText().toString());
             params.put("password", password.getText().toString());
 
             returnText = ServerComm.getRequest(ServerComm.GET, params, ServerComm.URL_LOGIN);
-
+            System.out.println("Server returned: " + returnText);
             return returnText;
         }
     }

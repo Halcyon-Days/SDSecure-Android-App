@@ -56,9 +56,9 @@ public class ServerComm {
 
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             result = convertStreamToString(in);
-            in.close();
             urlConnection.disconnect();
         } catch (IOException e) {
+            System.out.println(e);
             result = "Request failed";
         }
 

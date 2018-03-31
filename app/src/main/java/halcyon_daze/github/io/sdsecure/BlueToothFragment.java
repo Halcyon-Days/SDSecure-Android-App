@@ -84,6 +84,8 @@ public class BlueToothFragment extends android.app.Fragment {
     private OnFragmentInteractionListener mListener;
     private boolean connected = false;
 
+    BluetoothAdapter mBluetoothAdapter;
+
     public BlueToothFragment() {
         // Required empty public constructor
     }
@@ -154,7 +156,7 @@ public class BlueToothFragment extends android.app.Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         //activity code
         super.onActivityCreated(savedInstanceState);
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         updateText = getView().findViewById(R.id.updateText);
         // check to see if your android device even has a bluetooth device !!!!,
@@ -179,26 +181,13 @@ public class BlueToothFragment extends android.app.Fragment {
                     1);
         }
 
-        int numTries = 0;
-
-        if(connected == false | numTries++ < 10) {
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-
-            for (BluetoothDevice device : pairedDevices) {
-                if(device.getName().equals("SDSecure")) {
-                    CreateSerialBluetoothDeviceSocket(device);
-                    ConnectToSerialBlueToothDevice();
-                    Toast toast = Toast.makeText(getView().getContext(), "Connected to SDSecure!!", Toast.LENGTH_LONG);
-                    toast.show();
-
-                    new asyncBluetooth().execute();
-                }
-            }
-        }
+        tryServerConnect();
 
         if(connected == false) {
             Toast toast = Toast.makeText(getView().getContext(), "Connection failure, try reloading the page", Toast.LENGTH_LONG);
             toast.show();
+        } else {
+            new asyncBluetooth().execute();
         }
 
     }
@@ -234,6 +223,7 @@ public class BlueToothFragment extends android.app.Fragment {
             // MY_UUID is the app's UUID string, also used by the server code
             mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
         } catch (IOException e) {
+            System.out.println(e);
             Toast.makeText(getView().getContext(), "Socket Creation Failed", Toast.LENGTH_LONG).show();
         }
     }
@@ -244,6 +234,7 @@ public class BlueToothFragment extends android.app.Fragment {
             mmSocket.connect();
             Toast.makeText(getView().getContext(), "Connection Made", Toast.LENGTH_LONG).show();
         } catch (IOException connectException) {
+            System.out.println(connectException);
             Toast.makeText(getView().getContext(), "Connection Failed", Toast.LENGTH_LONG).show();
             return;
         }
@@ -257,7 +248,9 @@ public class BlueToothFragment extends android.app.Fragment {
         try {
             mmInStream = mmSocket.getInputStream();
             mmOutStream = mmSocket.getOutputStream();
+            System.out.println("Streams created successfully!");
         } catch (IOException e) {
+            System.out.println("Error in creating bluetooth streams!");
         }
     }
 
@@ -299,6 +292,25 @@ public class BlueToothFragment extends android.app.Fragment {
         return s;
     }
 
+    private boolean tryServerConnect() {
+        int numTries = 0;
+
+        //tries connecting 5 times, checks that stream was created correctly
+        if((connected == false||mmInStream == null) && numTries++ < 5) {
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+            for (BluetoothDevice device : pairedDevices) {
+                if(device.getName().equals("SDSecure")) {
+                    CreateSerialBluetoothDeviceSocket(device);
+                    ConnectToSerialBlueToothDevice();
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     //asynchronous task to send request
     private class asyncBluetooth extends AsyncTask<Context, Void, String> {
 
@@ -308,25 +320,32 @@ public class BlueToothFragment extends android.app.Fragment {
 
         protected String doInBackground(Context... input) {
             String s;
+
+
             while(true) {
-                s = ReadFromBTDevice();
-                if(s.contains("Testing")) {
-                    WriteToBTDevice("Success");
-                    System.out.println("Connection established!");
-                }
-
-                if(s.contains("Encryption Start")) {
-                    System.out.println("Encryption process, starting verify");
-
-                    WriteToBTDevice("Starting encrypt verify");
-                    VerifyEncrypt();
-                } else if (s.contains("Decryption Start")) {
-                    System.out.println("Decryption process, starting verify");
-
-                    WriteToBTDevice("Starting decrypt verify");
-                    VerifyDecrypt();
+                if (!connected || mmInStream == null) {
+                    tryServerConnect();
+                    SystemClock.sleep(10);
                 } else {
-                    WriteToBTDevice("Verification Fail");
+                    s = ReadFromBTDevice();
+                    if (s.contains("Testing")) {
+                        WriteToBTDevice("Success");
+                        System.out.println("Connection established!");
+                    }
+
+                    if (s.contains("Encryption Start")) {
+                        System.out.println("Encryption process, starting verify");
+
+                        WriteToBTDevice("Starting encrypt verify");
+                        VerifyEncrypt();
+                    } else if (s.contains("Decryption Start")) {
+                        System.out.println("Decryption process, starting verify");
+
+                        WriteToBTDevice("Starting decrypt verify");
+                        VerifyDecrypt();
+                    } else {
+                        WriteToBTDevice("Verification Fail");
+                    }
                 }
             }
         }
@@ -343,16 +362,19 @@ public class BlueToothFragment extends android.app.Fragment {
         lng = 20;
         encrypt = 1;
         name = "test";
-        System.out.println("starting new task");
         AsyncTask<Context, Void, String> task = new asyncServerPost();
         try {
-            result = task.execute(getActivity().getApplicationContext()).get();
+            System.out.println("Starting new task");
+            result = task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext()).get();
+            System.out.println("Ending new task");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println(e);
         } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        String ok = Integer.valueOf(result) >= 0 ? "Success" : "Failed";
+        System.out.println(e);
+    }
+
+    //BEFORE PARSED RESULT INTO INTEGER, DID NOT WORK CHECK
+        String ok = !result.equals("0") ? "Success" : "Failed";
         WriteToBTDevice(ok);
     }
 
@@ -433,7 +455,9 @@ public class BlueToothFragment extends android.app.Fragment {
 
     private class asyncServerPost extends AsyncTask<Context, Void, String> {
 
+        @Override
         protected String doInBackground(Context... input) {
+            System.out.println("Sending request");
             String returnText = "";
 
             HashMap<String, String> params = new HashMap<String, String>();
@@ -441,10 +465,10 @@ public class BlueToothFragment extends android.app.Fragment {
             params.put("lng", String.valueOf(lng));
             params.put("encryption", String.valueOf(encrypt));
             params.put("name", name);
-            System.out.println("sending request");
             returnText = ServerComm.getRequest(ServerComm.POST, params, ServerComm.URL_HISTORY);
             System.out.println("got request " + returnText);
             return returnText;
         }
     }
+
 }
