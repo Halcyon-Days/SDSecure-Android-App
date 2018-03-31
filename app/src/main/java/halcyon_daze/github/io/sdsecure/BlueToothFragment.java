@@ -22,18 +22,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.vlk.multimager.utils.Constants;
-import com.vlk.multimager.utils.Image;
-
-import org.w3c.dom.Text;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -88,7 +82,7 @@ public class BlueToothFragment extends android.app.Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private boolean connected;
+    private boolean connected = false;
 
     public BlueToothFragment() {
         // Required empty public constructor
@@ -132,17 +126,6 @@ public class BlueToothFragment extends android.app.Fragment {
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
         }
     }
 
@@ -196,20 +179,28 @@ public class BlueToothFragment extends android.app.Fragment {
                     1);
         }
 
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        int numTries = 0;
 
-        if (pairedDevices.size() > 0) {
+        if(connected == false | numTries++ < 10) {
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
             for (BluetoothDevice device : pairedDevices) {
                 if(device.getName().equals("SDSecure")) {
                     CreateSerialBluetoothDeviceSocket(device);
                     ConnectToSerialBlueToothDevice();
                     Toast toast = Toast.makeText(getView().getContext(), "Connected to SDSecure!!", Toast.LENGTH_LONG);
                     toast.show();
+
+                    new asyncBluetooth().execute();
                 }
             }
         }
 
-        new asyncBluetooth().execute();
+        if(connected == false) {
+            Toast toast = Toast.makeText(getView().getContext(), "Connection failure, try reloading the page", Toast.LENGTH_LONG);
+            toast.show();
+        }
+
     }
 
 
@@ -319,23 +310,24 @@ public class BlueToothFragment extends android.app.Fragment {
             String s;
             while(true) {
                 s = ReadFromBTDevice();
-                System.out.println(s);
                 if(s.contains("Testing")) {
                     WriteToBTDevice("Success");
-                    System.out.println("Wrote success!");
+                    System.out.println("Connection established!");
                 }
 
                 if(s.contains("Encryption Start")) {
+                    System.out.println("Encryption process, starting verify");
+
                     WriteToBTDevice("Starting encrypt verify");
                     VerifyEncrypt();
                 } else if (s.contains("Decryption Start")) {
+                    System.out.println("Decryption process, starting verify");
+
                     WriteToBTDevice("Starting decrypt verify");
                     VerifyDecrypt();
                 } else {
                     WriteToBTDevice("Verification Fail");
                 }
-
-                System.out.println("No response");
             }
         }
 
@@ -345,17 +337,14 @@ public class BlueToothFragment extends android.app.Fragment {
 
     //probably create new activity
     void VerifyEncrypt() {
-        try {
-            Thread.sleep(3000);
-        } catch (Exception e) {
 
-        }
         // TODO: using fake information for now
         lat = 10;
         lng = 20;
         encrypt = 1;
         name = "test";
-        AsyncTask<Context, Void, String> task = new asyncServerUpload();
+        System.out.println("starting new task");
+        AsyncTask<Context, Void, String> task = new asyncServerPost();
         try {
             result = task.execute(getActivity().getApplicationContext()).get();
         } catch (InterruptedException e) {
@@ -364,16 +353,11 @@ public class BlueToothFragment extends android.app.Fragment {
             e.printStackTrace();
         }
         String ok = Integer.valueOf(result) >= 0 ? "Success" : "Failed";
-        WriteToBTDevice("PinCode:XXXXXXXXX");
+        WriteToBTDevice(ok);
     }
 
     //probably create new activity
     void VerifyDecrypt() {
-        try {
-            Thread.sleep(3000);
-        } catch (Exception e) {
-
-        }
         uploadPhotos();
         String ok = result.contains("Success") ? "Success" : "Failed";
         WriteToBTDevice(ok);
@@ -388,6 +372,7 @@ public class BlueToothFragment extends android.app.Fragment {
     }
 
     private void dispatchTakePictureIntent() {
+        System.out.println("taking picture");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_PHOTO);
@@ -456,9 +441,9 @@ public class BlueToothFragment extends android.app.Fragment {
             params.put("lng", String.valueOf(lng));
             params.put("encryption", String.valueOf(encrypt));
             params.put("name", name);
-
+            System.out.println("sending request");
             returnText = ServerComm.getRequest(ServerComm.POST, params, ServerComm.URL_HISTORY);
-
+            System.out.println("got request " + returnText);
             return returnText;
         }
     }

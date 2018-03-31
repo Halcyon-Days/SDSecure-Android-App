@@ -65,7 +65,7 @@ public class login extends AppCompatActivity {
                     startIntent.putExtra("username", username.getText().toString());
                     startActivity(startIntent);
                 } else {
-                    responseText.setText("Invalid username or password!");
+                    //responseText.setText("Invalid username or password!");
                 }
             }
         });

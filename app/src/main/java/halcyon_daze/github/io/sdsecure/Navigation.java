@@ -77,13 +77,13 @@ public class Navigation extends AppCompatActivity
             @Override
             public void run() {
                 new asyncServerList().execute();
-                refreshHandler.postDelayed(this, 1000*60*10);
+                refreshHandler.postDelayed(this, 1000*60*3);
             }
         };
 
         //starts refresh handler
-       // refreshHandler.post(refreshCode);
-        fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("","")).commit();
+        refreshHandler.post(refreshCode);
+        //fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("","")).commit();
     }
 
     @Override
