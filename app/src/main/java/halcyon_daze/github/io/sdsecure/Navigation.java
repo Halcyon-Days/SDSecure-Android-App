@@ -125,9 +125,15 @@ public class Navigation extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_history) {
+            try {
+                new asyncServerList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+
             fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("",cardList)).commit();
         } else if (id == R.id.nav_map) {
-
+            new asyncServerList().execute();
             // Implements the google maps fragment
             MapFragment mapFragment = MapFragment.newInstance();
             mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -150,7 +156,7 @@ public class Navigation extends AppCompatActivity
 
             fm.beginTransaction().replace(R.id.content_frame, mapFragment).commit();
         } else if (id == R.id.nav_blue) {
-            fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("","")).commit();
+            fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("",username)).commit();
         } else if (id == R.id.nav_debug) {
             fm.beginTransaction().replace(R.id.content_frame, DebugFragment.newInstance("","")).commit();
         } else if (id == R.id.nav_logout) {

@@ -112,7 +112,10 @@ public class newAccount extends AppCompatActivity {
             case Constants.TYPE_MULTI_PICKER: {
                 ArrayList<Image> images = data.getParcelableArrayListExtra(Constants.KEY_BUNDLE_LIST);
                 // TODO: clean this up if time allows
+                int j = 0;
+
                 for (Image i : images) {
+                    System.out.println("Uploading image: " + j);
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), i.uri);
                         Date currentTime = Calendar.getInstance().getTime();
@@ -197,7 +200,7 @@ public class newAccount extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Context... contexts) {
-            ServerComm.uploadImage(mPhoto, "TEMP");
+            ServerComm.uploadImage(mPhoto, username.getText().toString());
             return null;
         }
     }

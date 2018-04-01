@@ -55,7 +55,6 @@ public class BlueToothFragment extends android.app.Fragment {
     private float lat;
     private float lng;
     private int encrypt;
-    private String name;
 
     private File mPhoto;
 
@@ -79,10 +78,11 @@ public class BlueToothFragment extends android.app.Fragment {
 
     // TODO: Rename and change types of parameters
     private String mParam1;
-    private String mParam2;
+    private String username;
 
     private OnFragmentInteractionListener mListener;
     private boolean connected = false;
+    private boolean activityDone = true;
 
     BluetoothAdapter mBluetoothAdapter;
 
@@ -113,7 +113,7 @@ public class BlueToothFragment extends android.app.Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            username = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -320,7 +320,8 @@ public class BlueToothFragment extends android.app.Fragment {
 
         protected String doInBackground(Context... input) {
             String s;
-
+            String latitude = "";
+            String longitude = "";
 
             while(true) {
                 if (!connected || mmInStream == null) {
@@ -328,45 +329,58 @@ public class BlueToothFragment extends android.app.Fragment {
                     SystemClock.sleep(10);
                 } else {
                     s = ReadFromBTDevice();
+                    System.out.println(s);
                     if (s.contains("Testing")) {
                         WriteToBTDevice("Success");
                         System.out.println("Connection established!");
                     }
 
+                    if (s.contains("lat") && s.contains("lng")) {
+                        //removes spaces, words latitude and longitude, leaving begin values separated by comma
+                        latitude = s.substring(s.indexOf("lat: ") + 5, s.indexOf(","));
+                        longitude = s.substring(s.indexOf("lng: ") + 5, s.indexOf("."));
+                        WriteToBTDevice("Changed current location!");
+                    }
+
                     if (s.contains("Encryption Start")) {
                         System.out.println("Encryption process, starting verify");
-
-                        WriteToBTDevice("Starting encrypt verify");
-                        VerifyEncrypt();
+                        if(latitude.isEmpty() || longitude.isEmpty()) {
+                            WriteToBTDevice("lat & long empty");
+                        } else {
+                            WriteToBTDevice("Starting encrypt verify");
+                            VerifyEncrypt(latitude, longitude);
+                            latitude = "";
+                            longitude = "";
+                        }
                     } else if (s.contains("Decryption Start")) {
                         System.out.println("Decryption process, starting verify");
-
-                        WriteToBTDevice("Starting decrypt verify");
-                        VerifyDecrypt();
-                    } else {
-                        WriteToBTDevice("Verification Fail");
+                        if(latitude.isEmpty() || longitude.isEmpty()) {
+                            WriteToBTDevice("lat & long empty");
+                        } else {
+                            WriteToBTDevice("Starting decrypt verify");
+                            VerifyDecrypt(latitude, longitude);
+                            latitude = "";
+                            longitude = "";
+                        }
                     }
                 }
             }
         }
-
-        protected void onPostExecute(String returnText) {
-        }
     }
 
     //probably create new activity
-    void VerifyEncrypt() {
+    void VerifyEncrypt(String latitude, String longitude) {
 
-        // TODO: using fake information for now
-        lat = 10;
-        lng = 20;
+        lat = Float.parseFloat(latitude);
+        lng = Float.parseFloat(longitude);
         encrypt = 1;
-        name = "test";
+        System.out.println("Creating new encryption with latitude: " + latitude + " and longitude: " + longitude);
+
         AsyncTask<Context, Void, String> task = new asyncServerPost();
         try {
-            System.out.println("Starting new task");
+            System.out.println("Starting new task to create encryption");
             result = task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext()).get();
-            System.out.println("Ending new task");
+            System.out.println("Ending new task to create encryption");
         } catch (InterruptedException e) {
             System.out.println(e);
         } catch (ExecutionException e) {
@@ -374,22 +388,29 @@ public class BlueToothFragment extends android.app.Fragment {
     }
 
     //BEFORE PARSED RESULT INTO INTEGER, DID NOT WORK CHECK
-        String ok = !result.equals("0") ? "Success" : "Failed";
+        String ok = !result.equals("0") ? "Encryption Success" : "Encryption Failed";
         WriteToBTDevice(ok);
     }
 
     //probably create new activity
-    void VerifyDecrypt() {
+    void VerifyDecrypt(String latitude, String longitude) {
+        lat = Float.parseFloat(latitude);
+        lng = Float.parseFloat(longitude);
+        encrypt = 0;
+        System.out.println("Creating decryption with latitude " + latitude + "and longitude " + longitude);
         uploadPhotos();
+        while(!activityDone);
         AsyncTask<Context, Void, String> task = new asyncServerUpload();
         try {
-            result = task.execute(getActivity().getApplicationContext()).get();
+            System.out.println("Starting new task to send photos");
+            result = task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext()).get();
+            System.out.println("Ending new task to send photos");
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        String ok = result.contains("Success") ? "Success" : "Failed";
+        String ok = result.contains("Success") ? "Decryption Success" : "Decryption Failed";
         WriteToBTDevice(ok);
     }
 
@@ -397,6 +418,7 @@ public class BlueToothFragment extends android.app.Fragment {
     returns number of photos uploaded
      */
     private int uploadPhotos() {
+        activityDone = false;
         dispatchTakePictureIntent();
         return 1; // for now just 1
     }
@@ -413,9 +435,12 @@ public class BlueToothFragment extends android.app.Fragment {
 
         @Override
         protected String doInBackground(Context... contexts) {
-            ServerComm.uploadImage(mPhoto, "TEMP");
-            return null;
+            ServerComm.uploadImage(mPhoto, username);
+
+           //SERVER DOESNT ACTUALLY GIVE RESPONSE, CHANGE THIS
+            return "Success";
         }
+
     }
 
     @Override
@@ -446,7 +471,7 @@ public class BlueToothFragment extends android.app.Fragment {
                     if (mPhoto != null) {
                         AsyncTask<Context, Void, String> task = new asyncServerUpload();
                         try {
-                            result = task.execute(getActivity().getApplicationContext()).get();
+                            result = task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext()).get();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (ExecutionException e) {
@@ -459,6 +484,7 @@ public class BlueToothFragment extends android.app.Fragment {
                 break;
             }
         }
+        activityDone = true;
     }
 
     private class asyncServerPost extends AsyncTask<Context, Void, String> {
@@ -472,7 +498,7 @@ public class BlueToothFragment extends android.app.Fragment {
             params.put("lat", String.valueOf(lat));
             params.put("lng", String.valueOf(lng));
             params.put("encryption", String.valueOf(encrypt));
-            params.put("name", name);
+            params.put("name", username);
             returnText = ServerComm.getRequest(ServerComm.POST, params, ServerComm.URL_HISTORY);
             System.out.println("got request " + returnText);
             return returnText;
