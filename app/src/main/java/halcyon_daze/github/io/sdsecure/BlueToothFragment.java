@@ -381,6 +381,14 @@ public class BlueToothFragment extends android.app.Fragment {
     //probably create new activity
     void VerifyDecrypt() {
         uploadPhotos();
+        AsyncTask<Context, Void, String> task = new asyncServerUpload();
+        try {
+            result = task.execute(getActivity().getApplicationContext()).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         String ok = result.contains("Success") ? "Success" : "Failed";
         WriteToBTDevice(ok);
     }
