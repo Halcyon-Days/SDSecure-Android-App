@@ -3,11 +3,13 @@ package halcyon_daze.github.io.sdsecure;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedInputStream;
@@ -65,7 +67,7 @@ public class ServerComm {
         return result;
     }
 
-    public static int uploadImage (File file, String username) {
+    public static String uploadImage (File file, String username) {
         HttpClient httpClient = new DefaultHttpClient();
         try {
             //String filename = "guy.jpg";
@@ -80,9 +82,10 @@ public class ServerComm {
 
             final HttpEntity entity = builder.build();
             request.setEntity(entity);
-            HttpResponse response = httpClient.execute(request);
+            ResponseHandler<String> responseHandler=new BasicResponseHandler();
+            String response = httpClient.execute(request, responseHandler);
 
-            return response.getStatusLine().getStatusCode();
+            return response;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -90,7 +93,7 @@ public class ServerComm {
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
-        return -1;
+        return "Error";
     }
 
     private static String convertStreamToString (InputStream in) {

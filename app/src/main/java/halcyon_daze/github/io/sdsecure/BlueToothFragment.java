@@ -435,10 +435,7 @@ public class BlueToothFragment extends android.app.Fragment {
 
         @Override
         protected String doInBackground(Context... contexts) {
-            ServerComm.uploadImage(mPhoto, username);
-
-           //SERVER DOESNT ACTUALLY GIVE RESPONSE, CHANGE THIS
-            return "Success";
+            return ServerComm.uploadImage(mPhoto, username);
         }
 
     }

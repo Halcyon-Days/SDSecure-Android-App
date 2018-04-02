@@ -200,8 +200,7 @@ public class newAccount extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Context... contexts) {
-            ServerComm.uploadImage(mPhoto, username.getText().toString());
-            return null;
+            return ServerComm.uploadImage(mPhoto, username.getText().toString());
         }
     }
 }
