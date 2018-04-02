@@ -136,7 +136,7 @@ public class newAccount extends AppCompatActivity {
                             if (mPhoto != null) {
                                 AsyncTask<Context, Void, String> task = new asyncServerUpload();
                                 try {
-                                    task.execute(getApplicationContext()).get();
+                                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getApplicationContext()).get();
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 } catch (ExecutionException e) {
