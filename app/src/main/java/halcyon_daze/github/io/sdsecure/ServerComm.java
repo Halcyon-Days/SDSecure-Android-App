@@ -1,7 +1,6 @@
 package halcyon_daze.github.io.sdsecure;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -36,6 +35,7 @@ public class ServerComm {
     public static final String URL_HISTORY = URL + "history?";
     public static final String URL_LOGIN = URL + "users?";
     public static final String URL_UPLOAD = URL + "upload";
+    public static final String URL_VALIDATE = URL + "validate";
     public static final String URL_HISTORY_LIST = URL + "history/user?";
     /*
      * Wrapper for send request, assuming url is constant
@@ -67,13 +67,13 @@ public class ServerComm {
         return result;
     }
 
-    public static String uploadImage (File file, String username) {
+    public static String uploadImage (File file, String username, boolean validate) {
         HttpClient httpClient = new DefaultHttpClient();
         try {
             //String filename = "guy.jpg";
             //File file = new File(Environment.getExternalStorageDirectory() + File.separator + filename);
             FileBody body = new FileBody(file);
-            HttpPost request = new HttpPost(URL_UPLOAD);
+            HttpPost request = new HttpPost(validate ? URL_VALIDATE : URL_UPLOAD);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -84,7 +84,7 @@ public class ServerComm {
             request.setEntity(entity);
             ResponseHandler<String> responseHandler=new BasicResponseHandler();
             String response = httpClient.execute(request, responseHandler);
-
+            System.out.println("Server response = " + response);
             return response;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

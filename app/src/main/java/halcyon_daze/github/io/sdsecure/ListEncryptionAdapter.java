@@ -50,7 +50,7 @@ public class ListEncryptionAdapter extends BaseAdapter{
         elementNumTextView.setText(String.valueOf(position));
         latitudeTextView.setText(cardList.get(position).getLatitude());
         longitudeTextView.setText(cardList.get(position).getLongitude());
-        if(cardList.get(position).getOperation() == "1") {
+        if(cardList.get(position).getOperation().equals("1")) {
             statusTextView.setText("Encrypt");
         } else {
             statusTextView.setText("Decrypt");
