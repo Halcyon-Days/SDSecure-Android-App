@@ -3,6 +3,8 @@ package halcyon_daze.github.io.sdsecure;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -23,17 +25,22 @@ import com.vlk.multimager.utils.Params;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class newAccount extends AppCompatActivity {
 
-    private File mPhoto; // TODO: gaaaah!
+    private List<File> mPhotos; // TODO: gaaaah!
+    private int picked = 0;
 
     EditText username;
     EditText password;
@@ -55,12 +62,21 @@ public class newAccount extends AppCompatActivity {
         responseText = findViewById(R.id.responseText);
         mImageView = findViewById(R.id.choosePhotosBtn);
         //mGalleryBtn = findViewById(R.id.galleryBtn);
-        mPhoto = null;
+        mPhotos = new ArrayList<>();
 
         newAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 closeKeyboard();
+
+                while (mPhotos.size() != picked) {
+                    // just poll for now
+                }
+
+                for (File f : mPhotos) {
+                    AsyncTask<File, Void, String> task = new asyncServerUpload();
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, f);
+                }
 
                 if (createAccount()) {
                     Intent startIntent = new Intent(getApplicationContext(), login.class);
@@ -87,14 +103,6 @@ public class newAccount extends AppCompatActivity {
                 params.setButtonTextColor(100);
                 intent.putExtra(Constants.KEY_PARAMS, params);
                 startActivityForResult(intent, Constants.TYPE_MULTI_PICKER);
-
-                /*if (numPhotos > 1) {
-                    responseText.setText(numPhotos + " photos chosen!");
-                } else if (numPhotos == 1){
-                    responseText.setText(numPhotos + " photo chosen!");
-                } else {
-                    responseText.setText("Error choosing photos!");
-                }*/
             }
         });
     }
@@ -111,45 +119,12 @@ public class newAccount extends AppCompatActivity {
             }
             case Constants.TYPE_MULTI_PICKER: {
                 ArrayList<Image> images = data.getParcelableArrayListExtra(Constants.KEY_BUNDLE_LIST);
-                // TODO: clean this up if time allows
-                int j = 0;
+                picked = images.size();
+                mPhotos.clear();
 
                 for (Image i : images) {
-                    System.out.println("Uploading image: " + j);
-                    try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), i.uri);
-                        Date currentTime = Calendar.getInstance().getTime();
-                        File file = new File(this.getCacheDir(), currentTime.toString() + ".jpg");
-                        try {
-                            file.createNewFile();
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                            byte[] bitmapdata = baos.toByteArray();
-
-                            FileOutputStream fos = new FileOutputStream(file);
-                            fos.write(bitmapdata);
-                            fos.flush();
-                            fos.close();
-                            mPhoto = file;
-
-                            // TODO: there should be another button to actually upload AFTER confirming, for now upload here directly
-                            if (mPhoto != null) {
-                                AsyncTask<Context, Void, String> task = new asyncServerUpload();
-                                try {
-                                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getApplicationContext()).get();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                } catch (ExecutionException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            bitmap.recycle();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    AsyncTask<Image, Void, Boolean> convertTask = new asyncConvertImage();
+                    convertTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
                 }
                 break;
             }
@@ -196,11 +171,81 @@ public class newAccount extends AppCompatActivity {
         }
     }
 
-    private class asyncServerUpload extends AsyncTask<Context, Void, String> {
+    private class asyncServerUpload extends AsyncTask<File, Void, String> {
 
         @Override
-        protected String doInBackground(Context... contexts) {
-            return ServerComm.uploadImage(mPhoto, username.getText().toString(), false);
+        protected String doInBackground(File... files) {
+            File file = files[0];
+            return ServerComm.uploadImage(file, username.getText().toString(), false);
         }
+    }
+
+    private class asyncConvertImage extends AsyncTask<Image, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Image... images) {
+            Image image = images[0];
+            //Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), image.uri);
+            Bitmap bitmap = null;
+            try {
+                bitmap = getThumbnail(image.uri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Date currentTime = Calendar.getInstance().getTime();
+            Random rand = new Random();
+            File file = new File(getCacheDir(), currentTime.toString() + String.valueOf(rand.nextInt(50000) + 1) + ".jpg");
+            try {
+                file.createNewFile();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] bitmapdata = baos.toByteArray();
+
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(bitmapdata);
+                fos.flush();
+                fos.close();
+                mPhotos.add(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return true;
+        }
+    }
+
+    // Taken from:
+    // https://stackoverflow.com/questions/3879992/how-to-get-bitmap-from-an-uri
+    public Bitmap getThumbnail(Uri uri) throws FileNotFoundException, IOException{
+        InputStream input = getContentResolver().openInputStream(uri);
+
+        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
+        onlyBoundsOptions.inJustDecodeBounds = true;
+        onlyBoundsOptions.inDither=true;//optional
+        onlyBoundsOptions.inPreferredConfig=Bitmap.Config.ARGB_8888;//optional
+        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        input.close();
+
+        if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1)) {
+            return null;
+        }
+
+        int originalSize = (onlyBoundsOptions.outHeight > onlyBoundsOptions.outWidth) ? onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
+
+        double ratio = (originalSize > 1024) ? (originalSize / 1024) : 1.0;
+
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio);
+        bitmapOptions.inDither = true; //optional
+        bitmapOptions.inPreferredConfig=Bitmap.Config.ARGB_8888;//
+        input = getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        input.close();
+        return bitmap;
+    }
+
+    private static int getPowerOfTwoForSampleRatio(double ratio){
+        int k = Integer.highestOneBit((int)Math.floor(ratio));
+        if(k==0) return 1;
+        else return k;
     }
 }
