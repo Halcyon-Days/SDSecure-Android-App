@@ -455,6 +455,10 @@ public class BlueToothFragment extends android.app.Fragment {
                 e.printStackTrace();
             }
             ok = result.contains("success") ? "Decryption Success" : "Decryption Failed";
+            if (result.contains("success")) {
+                AsyncTask<Context, Void, String> task2 = new asyncServerPost();
+                task2.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext());
+            }
         }
         WriteToBTDevice(ok);
 
