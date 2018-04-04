@@ -129,7 +129,9 @@ public class Navigation extends AppCompatActivity
             } catch (Exception e) {
                 System.out.println(e);
             }
+            listCreated = false;
 
+            //while(!listCreated);
             fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("",cardList)).commit();
         } else if (id == R.id.nav_map) {
             new asyncServerList().execute();
