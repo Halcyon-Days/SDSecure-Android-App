@@ -64,7 +64,7 @@ public class Navigation extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
+        getSupportActionBar().setTitle("History");
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -109,10 +109,6 @@ public class Navigation extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -124,16 +120,16 @@ public class Navigation extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_history) {
+            getSupportActionBar().setTitle("History");
+            listCreated = false;
             try {
                 new asyncServerList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
             } catch (Exception e) {
                 System.out.println(e);
             }
-            listCreated = false;
 
-            //while(!listCreated);
-            fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("",cardList)).commit();
         } else if (id == R.id.nav_map) {
+            getSupportActionBar().setTitle("Google Maps");
             new asyncServerList().execute();
             // Implements the google maps fragment
             MapFragment mapFragment = MapFragment.newInstance();
@@ -161,8 +157,10 @@ public class Navigation extends AppCompatActivity
 
             fm.beginTransaction().replace(R.id.content_frame, mapFragment).commit();
         } else if (id == R.id.nav_blue) {
+            getSupportActionBar().setTitle("Bluetooth Connect");
             fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("",username)).commit();
         } else if (id == R.id.nav_debug) {
+            getSupportActionBar().setTitle("Debug");
             fm.beginTransaction().replace(R.id.content_frame, DebugFragment.newInstance("","")).commit();
         } else if (id == R.id.nav_logout) {
             Intent startIntent = new Intent(getApplicationContext(), login.class);
