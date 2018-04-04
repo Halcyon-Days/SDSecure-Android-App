@@ -36,6 +36,7 @@ public class Navigation extends AppCompatActivity
     private ArrayList<SDCard> cardList;
     private FragmentManager fm;
     private String username;
+    private boolean listCreated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +146,7 @@ public class Navigation extends AppCompatActivity
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 
                     for(SDCard s: cardList) {
-                        if(s.getLatitude().equals(null) || s.getLongitude().equals(null)
+                        if(s.getLatitude().equals("null") || s.getLongitude().equals("null")
                                 || s.getLatitude().isEmpty() || s.getLongitude().isEmpty()) {
                         } else {
                             googleMap.addMarker(new MarkerOptions()
@@ -185,9 +186,11 @@ public class Navigation extends AppCompatActivity
         }
 
         protected void onPostExecute(String returnText) {
-            if(cardList == null) {
+            if(!listCreated) {
                 updateList(returnText);
                 fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("",cardList)).commit();
+                listCreated = true;
+                return;
             }
 
             updateList(returnText);

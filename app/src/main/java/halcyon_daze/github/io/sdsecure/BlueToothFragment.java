@@ -209,8 +209,6 @@ public class BlueToothFragment extends android.app.Fragment {
             pollBluetooth = new asyncBluetooth();
             pollBluetooth.execute();
         }
-
-
     }
 
 
@@ -231,7 +229,6 @@ public class BlueToothFragment extends android.app.Fragment {
         } catch (IOException e) {
         }
         connected = false;
-
     }
 
     public void CreateSerialBluetoothDeviceSocket(BluetoothDevice device) {
@@ -391,11 +388,13 @@ public class BlueToothFragment extends android.app.Fragment {
                             System.out.println("Decryption process, starting verify");
                             WriteToBTDevice("Starting decrypt verify");
                             returnText = VerifyDecrypt(latitude, longitude);
-                            getActivity().runOnUiThread(new Runnable() {
-                                public void run () {
-                                    updateText.setText("Facial Recognition Success!");
-                                }
-                            });
+                            if(returnText.contains("Success")) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        updateText.setText("Facial Recognition Success!");
+                                    }
+                                });
+                            }
                             latitude = "";
                             longitude = "";
                         }
@@ -441,6 +440,11 @@ public class BlueToothFragment extends android.app.Fragment {
         System.out.println("Creating decryption with latitude " + latitude + "and longitude " + longitude);
         uploadPhotos();
         while(!activityDone);
+        getActivity().runOnUiThread(new Runnable() {
+            public void run () {
+                updateText.setText("Sending photo!");
+            }
+        });
         if(result.contains("Failed")) {
             ok = "Decryption Failed";
         } else {

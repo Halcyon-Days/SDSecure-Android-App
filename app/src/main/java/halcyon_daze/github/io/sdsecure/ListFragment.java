@@ -62,6 +62,7 @@ public class ListFragment extends android.app.Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             cardList = (ArrayList<SDCard>) getArguments().getSerializable(ARG_PARAM2);
+            getArguments().remove(ARG_PARAM2);
         }
     }
 

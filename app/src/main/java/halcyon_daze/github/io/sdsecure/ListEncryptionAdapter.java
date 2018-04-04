@@ -48,7 +48,7 @@ public class ListEncryptionAdapter extends BaseAdapter{
         TextView lastTimeTextView = (TextView) v.findViewById(R.id.lastTimeText);
 
         elementNumTextView.setText(String.valueOf(position));
-        if(cardList.get(position).getLatitude().equals(null) || cardList.get(position).getLongitude().equals("null")
+        if(cardList.get(position).getLatitude().equals("null") || cardList.get(position).getLongitude().equals("null")
                 || cardList.get(position).getLatitude().isEmpty() || cardList.get(position).getLatitude().isEmpty()) {
             latitudeTextView.setText("N/A");
             longitudeTextView.setText("N/A");
