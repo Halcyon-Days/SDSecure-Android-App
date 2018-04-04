@@ -77,13 +77,12 @@ public class Navigation extends AppCompatActivity
             @Override
             public void run() {
                 new asyncServerList().execute();
-                refreshHandler.postDelayed(this, 1000*60*3);
+                //refreshHandler.postDelayed(this, 1000*60*3);
             }
         };
 
         //starts refresh handler
         refreshHandler.post(refreshCode);
-        //fm.beginTransaction().replace(R.id.content_frame, BlueToothFragment.newInstance("","")).commit();
     }
 
     @Override
@@ -92,7 +91,6 @@ public class Navigation extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
         }
     }
 
@@ -142,14 +140,18 @@ public class Navigation extends AppCompatActivity
 
                     //CREATES MARKER FOR LOCATIONS OF SD CARD
                     LatLng latLng = new LatLng( 49.2606, -123.2460);
-
+                    int i = 0;
                     //focuses the map on ubc
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 
                     for(SDCard s: cardList) {
-                        googleMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(Double.valueOf(s.getLatitude()), Double.valueOf(s.getLongitude())))
-                                .title(s.getID()));
+                        if(s.getLatitude().equals(null) || s.getLongitude().equals(null)
+                                || s.getLatitude().isEmpty() || s.getLongitude().isEmpty()) {
+                        } else {
+                            googleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(Double.valueOf(s.getLatitude().trim()), Double.valueOf(s.getLongitude().trim())))
+                                    .title(String.valueOf(i)));
+                        }
                     }
                 }
             });
@@ -171,10 +173,6 @@ public class Navigation extends AppCompatActivity
 
     //asynchronous task to send list request
     private class asyncServerList extends AsyncTask<Context, Void, String> {
-
-        protected void onPreExecute() {
-
-        }
 
         protected String doInBackground(Context... input) {
             String returnText = "";

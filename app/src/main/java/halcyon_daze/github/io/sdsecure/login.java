@@ -104,6 +104,10 @@ public class login extends AppCompatActivity {
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
+    @Override
+    public void onBackPressed() {
+    }
+
     private class asyncServerLogin extends AsyncTask<Context, Void, String> {
 
         @Override

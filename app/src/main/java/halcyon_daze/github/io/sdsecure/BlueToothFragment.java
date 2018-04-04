@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 
@@ -201,7 +202,7 @@ public class BlueToothFragment extends android.app.Fragment {
             }
         });
 
-        if(connected == false) {
+        if(connected == false||mmInStream == null) {
             Toast toast = Toast.makeText(getView().getContext(), "Connection failure, try reloading the page", Toast.LENGTH_LONG);
             toast.show();
         } else {
@@ -318,7 +319,7 @@ public class BlueToothFragment extends android.app.Fragment {
         int numTries = 0;
 
         //tries connecting 5 times, checks that stream was created correctly
-        if((connected == false||mmInStream == null) && numTries++ < 5) {
+        if((connected == false||mmInStream == null)) {
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
             for (BluetoothDevice device : pairedDevices) {
@@ -337,7 +338,6 @@ public class BlueToothFragment extends android.app.Fragment {
     private class asyncBluetooth extends AsyncTask<Context, Void, String> {
 
         protected void onPreExecute(){}
-
 
         protected String doInBackground(Context... input) {
             String s;
@@ -361,7 +361,7 @@ public class BlueToothFragment extends android.app.Fragment {
                         if (s.contains("lat") && s.contains("lng")) {
                             //removes spaces, words latitude and longitude, leaving begin values separated by comma
                             latitude = s.substring(s.indexOf("lat: ") + 5, s.indexOf(","));
-                            longitude = s.substring(s.indexOf("lng: ") + 5, s.indexOf("."));
+                            longitude = s.substring(s.indexOf("lng: ") + 5, s.lastIndexOf("."));
                             WriteToBTDevice("Changed current location!");
                         }
 
@@ -393,7 +393,7 @@ public class BlueToothFragment extends android.app.Fragment {
                             returnText = VerifyDecrypt(latitude, longitude);
                             getActivity().runOnUiThread(new Runnable() {
                                 public void run () {
-                                    updateText.setText(returnText);
+                                    updateText.setText("Facial Recognition Success!");
                                 }
                             });
                             latitude = "";
@@ -436,20 +436,26 @@ public class BlueToothFragment extends android.app.Fragment {
         lat = latitude;
         lng = longitude;
         encrypt = 0;
+        String ok;
+
         System.out.println("Creating decryption with latitude " + latitude + "and longitude " + longitude);
         uploadPhotos();
         while(!activityDone);
-        AsyncTask<Context, Void, String> task = new asyncServerUpload();
-        try {
-            System.out.println("Starting new task to send photos");
-            result = task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext()).get();
-            System.out.println("Ending new task to send photos");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+        if(result.contains("Failed")) {
+            ok = "Decryption Failed";
+        } else {
+            AsyncTask<Context, Void, String> task = new asyncServerUpload();
+            try {
+                System.out.println("Starting new task to send photos");
+                result = task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext()).get();
+                System.out.println("Ending new task to send photos");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            ok = result.contains("success") ? "Decryption Success" : "Decryption Failed";
         }
-        String ok = result.contains("success") ? "Decryption Success" : "Decryption Failed";
         WriteToBTDevice(ok);
 
         return ok;
@@ -483,10 +489,14 @@ public class BlueToothFragment extends android.app.Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == (RESULT_CANCELED)) {
+            activityDone = true;
+            result = "Failed, Camera app interrupted";
+        }
         if (resultCode != RESULT_OK) {
             return;
         }
-        switch (requestCode) {
+            switch (requestCode) {
             case REQUEST_PHOTO: {
                 Bundle extras = data.getExtras();
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
@@ -505,17 +515,6 @@ public class BlueToothFragment extends android.app.Fragment {
                     fos.close();
                     mPhoto = file;
 
-                    // TODO: there should be another button to actually upload AFTER confirming, for now upload here directly
-                    if (mPhoto != null) {
-                        AsyncTask<Context, Void, String> task = new asyncServerUpload();
-                        try {
-                            result = task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext()).get();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -523,6 +522,7 @@ public class BlueToothFragment extends android.app.Fragment {
             }
         }
         activityDone = true;
+        result = "Success, picture taken";
     }
 
     private class asyncServerPost extends AsyncTask<Context, Void, String> {

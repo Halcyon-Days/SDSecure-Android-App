@@ -48,8 +48,14 @@ public class ListEncryptionAdapter extends BaseAdapter{
         TextView lastTimeTextView = (TextView) v.findViewById(R.id.lastTimeText);
 
         elementNumTextView.setText(String.valueOf(position));
-        latitudeTextView.setText(cardList.get(position).getLatitude());
-        longitudeTextView.setText(cardList.get(position).getLongitude());
+        if(cardList.get(position).getLatitude().equals(null) || cardList.get(position).getLongitude().equals("null")
+                || cardList.get(position).getLatitude().isEmpty() || cardList.get(position).getLatitude().isEmpty()) {
+            latitudeTextView.setText("N/A");
+            longitudeTextView.setText("N/A");
+        } else {
+            latitudeTextView.setText(cardList.get(position).getLatitude());
+            longitudeTextView.setText(cardList.get(position).getLongitude());
+        }
         if(cardList.get(position).getOperation().equals("1")) {
             statusTextView.setText("Encrypt");
         } else {
