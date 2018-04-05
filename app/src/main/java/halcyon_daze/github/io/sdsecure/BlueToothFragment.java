@@ -13,12 +13,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -179,7 +181,7 @@ public class BlueToothFragment extends android.app.Fragment {
                     1);
         }
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.BLUETOOTH_ADMIN)
+        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.BLUETOOTH_ADMIN)
                 != PackageManager.PERMISSION_GRANTED) {
             // Paul: need this for Android 6.0+, dynamic permission
             ActivityCompat.requestPermissions(getActivity(),
@@ -199,6 +201,24 @@ public class BlueToothFragment extends android.app.Fragment {
                 } else {
                     updateText.setText("Start polling?");
                 }
+            }
+        });
+
+        Button skipBtn = getView().findViewById(R.id.SkipBtn);
+        skipBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WriteToBTDevice("Success");
+            }
+        });
+
+        FloatingActionButton refreshBtn = getView().findViewById(R.id.refreshBtn);
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if(mmInStream != null) {
+                    closeConnection();
+                }
+                tryServerConnect();
             }
         });
 
@@ -313,9 +333,7 @@ public class BlueToothFragment extends android.app.Fragment {
     }
 
     private boolean tryServerConnect() {
-        int numTries = 0;
 
-        //tries connecting 5 times, checks that stream was created correctly
         if((connected == false||mmInStream == null)) {
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
@@ -447,6 +465,11 @@ public class BlueToothFragment extends android.app.Fragment {
         });
         if(result.contains("Failed")) {
             ok = "Decryption Failed";
+            getActivity().runOnUiThread(new Runnable() {
+                public void run () {
+                    updateText.setText("Error in Decryption!\nTry Again!");
+                }
+            });
         } else {
             AsyncTask<Context, Void, String> task = new asyncServerUpload();
             try {
@@ -462,11 +485,18 @@ public class BlueToothFragment extends android.app.Fragment {
             if (result.contains("success")) {
                 AsyncTask<Context, Void, String> task2 = new asyncServerPost();
                 task2.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getActivity().getApplicationContext());
+            } else {
+                ok = "Decryption Failed";
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        updateText.setText("Error in Decryption!\nTry Again!");
+                    }
+                });
             }
+            WriteToBTDevice(ok);
         }
-        WriteToBTDevice(ok);
+            return ok;
 
-        return ok;
     }
 
     /*
@@ -559,11 +589,9 @@ public class BlueToothFragment extends android.app.Fragment {
             pollBluetooth.cancel(true);
         }
 
-
         if(mmInStream != null) {
             closeConnection();
         }
-
 
     }
 

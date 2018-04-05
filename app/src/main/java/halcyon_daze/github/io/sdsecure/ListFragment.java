@@ -1,6 +1,8 @@
 package halcyon_daze.github.io.sdsecure;
 
+import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,7 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,11 +35,11 @@ public class ListFragment extends android.app.Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
+    private String username;
     private ArrayList<SDCard> mParam2;
 
     private OnFragmentInteractionListener mListener;
-
+    private asyncServerList task;
     public ListFragment() {
         // Required empty public constructor
     }
@@ -60,7 +66,7 @@ public class ListFragment extends android.app.Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            username = getArguments().getString(ARG_PARAM1);
             cardList = (ArrayList<SDCard>) getArguments().getSerializable(ARG_PARAM2);
             getArguments().remove(ARG_PARAM2);
         }
@@ -70,7 +76,7 @@ public class ListFragment extends android.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.activity_list_encryptions, container, false);
+        return inflater.inflate(R.layout.activity_list_encryptions_phone, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -80,18 +86,7 @@ public class ListFragment extends android.app.Fragment {
         }
 
     }
-/*
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-*/
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -103,15 +98,16 @@ public class ListFragment extends android.app.Fragment {
         //activity code
         super.onActivityCreated(savedInstanceState);
 
-        //FOR TESTING ONLY
-        //cardList = new ArrayList<SDCard>();
-        //SDCard.testListCreate();
-
         cardListView = getView().findViewById(R.id.cardList);
 
         //Creates adapter which shows the details of a bus when it is clicked in the listview
-        ListEncryptionAdapter cardListAdapter = new ListEncryptionAdapter(getActivity(), cardList);
-        cardListView.setAdapter(cardListAdapter);
+        if(cardList != null) {
+            ListEncryptionAdapter cardListAdapter = new ListEncryptionAdapter(getActivity(), cardList);
+            cardListView.setAdapter(cardListAdapter);
+        }
+
+        task = new asyncServerList();
+        task.execute();
     }
 
     /**
@@ -127,5 +123,42 @@ public class ListFragment extends android.app.Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    //asynchronous task to send list request
+    private class asyncServerList extends AsyncTask<Context, Void, String> {
+
+        protected String doInBackground(Context... input) {
+            String returnText = "";
+
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("name",username);
+            returnText = ServerComm.getRequest(ServerComm.GET, params, ServerComm.URL_HISTORY_LIST);
+
+            return returnText;
+        }
+
+        protected void onPostExecute(String returnText) {
+            updateList(returnText);
+        }
+    }
+
+    private void updateList(String returnText) {
+        try {
+            JSONArray testArray = new JSONArray(returnText);
+            cardList = SDCard.parseSDJSON(testArray);
+
+            //Creates adapter which shows the details of a bus when it is clicked in the listview
+            ListEncryptionAdapter cardListAdapter = new ListEncryptionAdapter(getActivity(), cardList);
+            cardListView.setAdapter(cardListAdapter);
+        } catch(JSONException e) {
+            System.out.println("Json parse failed");
+        }
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+        task.cancel(true);
+
     }
 }

@@ -40,7 +40,7 @@ public class ListEncryptionAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View v = mInflater.inflate(R.layout.card_info_row, null);
+        View v = mInflater.inflate(R.layout.card_info_row_phone, null);
         TextView elementNumTextView = (TextView) v.findViewById(R.id.elementNum);
         TextView latitudeTextView = (TextView) v.findViewById(R.id.latitudeText);
         TextView longitudeTextView = (TextView) v.findViewById(R.id.longitudeText);

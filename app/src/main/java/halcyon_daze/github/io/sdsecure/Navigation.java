@@ -82,6 +82,9 @@ public class Navigation extends AppCompatActivity
             }
         };
 
+        fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance(username, cardList)).commit();
+        //fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance(username, "")).commit();
+
         //starts refresh handler
         refreshHandler.post(refreshCode);
     }
@@ -121,13 +124,9 @@ public class Navigation extends AppCompatActivity
 
         if (id == R.id.nav_history) {
             getSupportActionBar().setTitle("History");
-            listCreated = false;
-            try {
-                new asyncServerList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
-            } catch (Exception e) {
-                System.out.println(e);
-            }
+            //fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance(username, "")).commit();
 
+            fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance(username, cardList)).commit();
         } else if (id == R.id.nav_map) {
             getSupportActionBar().setTitle("Google Maps");
             new asyncServerList().execute();
@@ -143,13 +142,15 @@ public class Navigation extends AppCompatActivity
                     //focuses the map on ubc
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 
-                    for(SDCard s: cardList) {
-                        if(s.getLatitude().equals("null") || s.getLongitude().equals("null")
-                                || s.getLatitude().isEmpty() || s.getLongitude().isEmpty()) {
-                        } else {
-                            googleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.valueOf(s.getLatitude().trim()), Double.valueOf(s.getLongitude().trim())))
-                                    .title(String.valueOf(i)));
+                    if(cardList != null) {
+                        for (SDCard s : cardList) {
+                            if (s.getLatitude().equals("null") || s.getLongitude().equals("null")
+                                    || s.getLatitude().isEmpty() || s.getLongitude().isEmpty()) {
+                            } else {
+                                googleMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(Double.valueOf(s.getLatitude().trim()), Double.valueOf(s.getLongitude().trim())))
+                                        .title(String.valueOf(i)));
+                            }
                         }
                     }
                 }
@@ -188,7 +189,6 @@ public class Navigation extends AppCompatActivity
         protected void onPostExecute(String returnText) {
             if(!listCreated) {
                 updateList(returnText);
-                fm.beginTransaction().replace(R.id.content_frame, ListFragment.newInstance("",cardList)).commit();
                 listCreated = true;
                 return;
             }

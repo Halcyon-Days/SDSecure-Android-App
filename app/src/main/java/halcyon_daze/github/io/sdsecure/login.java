@@ -65,7 +65,6 @@ public class login extends AppCompatActivity {
                     startIntent.putExtra("username", username.getText().toString());
                     startActivity(startIntent);
                 } else {
-                    responseText.setText("Invalid username or password!");
                 }
             }
         });
@@ -90,6 +89,13 @@ public class login extends AppCompatActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+        System.out.println("Result is = " + result);
+        if(result.contains("Request")) {
+            responseText.setText("Connection failure!");
+        } else if (!result.contains("success")) {
+            responseText.setText("Invalid username or password!");
+        }
+
         return result.contains("success");
     }
 
