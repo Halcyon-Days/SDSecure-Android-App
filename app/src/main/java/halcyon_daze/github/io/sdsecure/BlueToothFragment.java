@@ -544,7 +544,7 @@ public class BlueToothFragment extends android.app.Fragment {
                 try {
                     file.createNewFile();
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
                     byte[] bitmapdata = baos.toByteArray();
 
                     FileOutputStream fos = new FileOutputStream(file);
